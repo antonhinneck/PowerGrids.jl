@@ -1,4 +1,4 @@
 *
-!src/*
+#!src/*
 !src/datasets/*
 !test/*
