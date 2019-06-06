@@ -1,0 +1,4 @@
+The cases are sourced from https://github.com/power-grid-lib/pglib-opf.
+The current version of the data sets is 19.05
+The license is attached in the file "LICENSE"
+ When citing, please refer to the original data base.
