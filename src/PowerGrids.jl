@@ -31,10 +31,30 @@ function string_to_symbol_array(string_array)
     return  out
 end
 
-a = 
 function get_datasets()
-    cd("datasets")
+# This function returns all data
+# files in the directory "datasets".
 
+    # Read file names
+    cd((@__DIR__))
+    cd("datasets")
+    itr = walkdir(pwd(), topdown = true, follow_symlinks = false)
+    datasets = first(itr)[3]
+
+    # Remove non-data files
+    i = 1
+    print("-------------\n")
+    while (i <= length(datasets))
+        #print(datasets[i][(length(datasets[i]) - 4):length(datasets[i])], "\n")
+        if !(datasets[i][(length(datasets[i]) - 4):length(datasets[i])] == ".xlsx")
+            deleteat!(datasets, i)
+            global i = i - 1
+        end
+        global i += 1
+    end
+
+    # Return data files
+    return datasets
 end
 
 function to_df(raw_data)
