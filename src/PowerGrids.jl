@@ -16,6 +16,8 @@
 
 module PowerGrids
 
+using DataFrames, XLSX, JSON
+
 function string_to_symbol_array(string_array)
 
     out = Array{Symbol, 1}()
