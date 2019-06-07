@@ -31,6 +31,12 @@ function string_to_symbol_array(string_array)
     return  out
 end
 
+a = 
+function get_datasets()
+    cd("datasets")
+
+end
+
 function to_df(raw_data)
 
     if typeof(raw_data) <: Tuple
