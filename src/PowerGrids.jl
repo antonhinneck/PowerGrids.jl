@@ -38,7 +38,7 @@ function get_datasets()
     # Read file names
     cd((@__DIR__))
     cd("datasets")
-    itr = walkdir(pwd(), topdown = true, follow_symlinks = false)
+    itr = walkdir(pwd(), topdown = false, follow_symlinks = false)
     datasets = first(itr)[3]
 
     # Remove non-data files
