@@ -14,7 +14,7 @@
 ## anton.hinneck@skoltech.ru
 #####-----------------------
 
-module
+module PowerGrids
 
 function string_to_symbol_array(string_array)
 
