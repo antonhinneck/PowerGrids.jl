@@ -48,9 +48,9 @@ function get_datasets()
         #print(datasets[i][(length(datasets[i]) - 4):length(datasets[i])], "\n")
         if !(datasets[i][(length(datasets[i]) - 4):length(datasets[i])] == ".xlsx")
             deleteat!(datasets, i)
-            global i = i - 1
+            i = i - 1
         end
-        global i += 1
+        i += 1
     end
 
     # Return data files
@@ -202,7 +202,9 @@ struct PowerGrid
 
 end
 
-function import_PowerGrid(DataSource, dataset_name)
+function import_PowerGrid(DataSource)
+
+    dataset_name = DataSource[1:(length(DataSource) - 4)]
 
     bus_df = to_df(XLSX.readtable(DataSource, "bus"))
     gen_df = to_df(XLSX.readtable(DataSource, "gen"))
