@@ -16,7 +16,7 @@
 
 module PowerGrids
 
-using DataFrames, XLSX, JSON, LightGraphs
+using DataFrames, XLSX, JSON, LightGraphs, SimpleGraphs
 
 export datasets, readDataset, toGraph
 
