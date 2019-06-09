@@ -28,6 +28,9 @@ function readDataset(DataSource)
 
     dataset_name = DataSource[1:(length(DataSource) - 4)]
 
+    cd(@__DIR__)
+    cd("datasets")
+
     bus_df = to_df(XLSX.readtable(DataSource, "bus"))
     gen_df = to_df(XLSX.readtable(DataSource, "gen"))
     gencost_df = to_df(XLSX.readtable(DataSource, "gencost"))
@@ -164,6 +167,7 @@ function readDataset(DataSource)
                         bus_demand,
                         JsonModel)
 
+    cd(@__DIR__)
     return dataset
 
 end
