@@ -18,8 +18,7 @@ module PowerGrids
 
 using DataFrames, XLSX, JSON, LightGraphs
 
-export AnnotatedSimpleGraph, AbstractAnnotatedGraph,
-    datasets, readDataset
+export datasets, readDataset, toGraph
 
 include("./utils.jl")
 include("./grid_components.jl")
