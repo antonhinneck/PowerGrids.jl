@@ -3,4 +3,4 @@ include("C:/Users/Anton Hinneck/.julia/packages/PowerGrids/src/PowerGrids.jl")
 
 grid = PowerGrids.readDataset(PowerGrids.datasets()[5])
 
-graph = to(grid)
+graph = toGraph(grid)
