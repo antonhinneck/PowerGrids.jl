@@ -16,7 +16,7 @@
 
 module PowerGrids
 
-using DataFrames, XLSX, JSON, SimpleGraphs: SimpleGraph
+using DataFrames, XLSX, JSON, LightGraphs
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
 export datasets, readDataset, toGraph
