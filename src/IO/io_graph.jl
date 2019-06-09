@@ -19,7 +19,7 @@ function toGraph(PG::PowerGrid)
 
             add_vertex!(graph)
             vertices += 1
-            push!(VertexLabels, vertices => string(PG.busses[i]))
+            push!(VertexLabels, vertices => string(PG.generators_at_bus[j]))
 
         end
     end
