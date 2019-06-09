@@ -2,6 +2,9 @@
 #--------------------------------------------------------------
 function toGraph(PG::PowerGrid)
 
+    output = SimpleGraph()
 
+
+    return output
 
 end
