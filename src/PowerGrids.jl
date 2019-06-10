@@ -16,10 +16,11 @@
 
 module PowerGrids
 
+using Pkg
 using DataFrames, XLSX, JSON, LightGraphs
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
-export datasets, readDataset, toGraph
+export datasets, readDataset, toGraph, AnnotatedSimpleGraph
 
 include("./utils.jl")
 include("./grid_components.jl")
