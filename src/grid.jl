@@ -77,7 +77,7 @@ function readDataset(DataSource)
 
     # Build Model Data
     #-----------------
-    busses = [i for i in 1:length(bus_df[:, 1])]
+    busses = [bus_df[:, 1]...]
     bus_demand = Dict{Int64, Float64}()
     generators_at_bus = Dict{Int64, Vector{Int64}}()
     lines_at_bus = Dict{Int64, Vector{Int64}}()
@@ -86,16 +86,16 @@ function readDataset(DataSource)
 
     for i in 1:length(busses)
 
-        push!(generators_at_bus, i => Vector{Int64}())
-        push!(lines_at_bus, i => Vector{Int64}())
-        push!(lines_start_at_bus, i => Vector{Int64}())
-        push!(lines_end_at_bus, i => Vector{Int64}())
+        push!(generators_at_bus, busses[i] => Vector{Int64}())
+        push!(lines_at_bus, busses[i]=> Vector{Int64}())
+        push!(lines_start_at_bus, busses[i] => Vector{Int64}())
+        push!(lines_end_at_bus, busses[i] => Vector{Int64}())
 
     end
 
     for i in 1:length(busses)
 
-        push!(bus_demand, i => bus_df[i,3])
+        push!(bus_demand, busses[i] => bus_df[i,3])
 
     end
 
@@ -107,7 +107,7 @@ function readDataset(DataSource)
 
         push!(generator_capacity, generators[i] => gen_df[i,9])
         push!(generator_costs, generators[i] => gen_df[i,4] + gen_df[i,6])
-        push!(generators_at_bus[gen_df[i,1]], i)
+        push!(generators_at_bus[gen_df[i,1]], generators[i])
 
     end
 
