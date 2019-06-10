@@ -6,6 +6,9 @@ function toGraph(PG::PowerGrid)
 
     VertexLabels = Dict{I where I <: Integer, String}()
     VertexTypes = Dict{I where I <: Integer, I where I <: Integer}()
+    # 1: Bus
+    # 2: Generator
+    # 3: Demand
     VertexTypeLabels = Dict{I where I <: Integer, String}()
 
     vertices = 0
@@ -14,12 +17,16 @@ function toGraph(PG::PowerGrid)
         add_vertex!(graph)
         vertices += 1
         push!(VertexLabels, vertices => string(PG.busses[i]))
+        push!(VertexTypes, vertices => 1)
+        push!(VertexTypeLabels, vertices => "bus")
 
         for j in 1:length(PG.generators_at_bus[i])
 
             add_vertex!(graph)
             vertices += 1
-            push!(VertexLabels, vertices => string("gen: ", PG.generators_at_bus[j]))
+            push!(VertexLabels, vertices => string("gen: ", PG.generators_at_bus[i][j]))
+            push!(VertexTypes, vertices => 2)
+            push!(VertexTypeLabels, vertices => "generator")
 
         end
     end
