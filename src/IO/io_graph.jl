@@ -21,6 +21,7 @@ function toGraph(PG::PowerGrid)
     EdgeTypeLabels = Dict{I where I <: Integer, String}()
     push!(EdgeTypeLabels, 1 => "power_line")
     push!(EdgeTypeLabels, 2 => "connnection")
+    rev_map_vertices = Dict{I where I <: Integer, I where I <: Integer}()
 
     vertices = 0
     for i in 1:length(PG.busses)
@@ -29,9 +30,10 @@ function toGraph(PG::PowerGrid)
         #------------------
         add_vertex!(graph)
         vertices += 1
-        top_level_vertex = vertices
         push!(VertexLabels, vertices => string(PG.busses[i]))
         push!(VertexTypes, vertices => 1)
+        push!(rev_map_vertices, PG.busses[i] => vertices)
+        top_level_vertex = vertices
 
         for j in 1:length(PG.generators_at_bus[PG.busses[i]])
             #print(top_level_vertex," - ")
@@ -41,6 +43,7 @@ function toGraph(PG::PowerGrid)
             vertices += 1
             push!(VertexLabels, vertices => string("gen: ", PG.generators_at_bus[i][j]))
             push!(VertexTypes, vertices => 2)
+            push!(rev_map_vertices, PG.busses[i] => vertices)
 
             # Add level 2 edges
             #------------------
@@ -51,21 +54,20 @@ function toGraph(PG::PowerGrid)
             push!(EdgeTypes, current_edge => 2)
 
         end
-    end
 
-    print(EdgeLabels)
+    end
 
     for i in 1:length(PG.lines)
 
         # Add level 1 edges
         #------------------
-        current_edge = Tuple([PG.line_start[PG.lines[i]], PG.line_end[PG.lines[i]]])
+        current_edge = Tuple([rev_map_vertices[PG.line_start[PG.lines[i]]], rev_map_vertices[PG.line_end[PG.lines[i]]]])
         add_edge!(graph, current_edge...)
         push!(EdgeLabels, current_edge => string("e: ",current_edge[1]," - ",current_edge[2]))
         push!(EdgeTypes, current_edge => 1)
 
     end
-
+    
     return GraphVisualization.AnnotatedSimpleGraph(graph,
                                                     VertexLabels,
                                                     VertexTypes,
