@@ -45,13 +45,15 @@ function toGraph(PG::PowerGrid)
             # Add level 2 edges
             #------------------
             current_edge = Tuple([top_level_vertex, vertices])
-            print(current_edge," - ")
+            #print(current_edge," - ")
             add_edge!(graph, current_edge...)
             push!(EdgeLabels, current_edge => string("e: ",current_edge[1]," - ",current_edge[2]))
             push!(EdgeTypes, current_edge => 2)
 
         end
     end
+
+    print(EdgeLabels)
 
     for i in 1:length(PG.lines)
 
