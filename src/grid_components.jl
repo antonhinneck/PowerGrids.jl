@@ -20,7 +20,7 @@ mutable struct bus <: Bus
 
 end
 
-struct branch <: Branch
+mutable struct branch <: Branch
 
 
     fbus::S where S<:Number
@@ -39,7 +39,7 @@ struct branch <: Branch
 
 end
 
-struct generator <: Generator
+mutable struct generator <: Generator
 
     ## Generator DATA
     ##---------------
@@ -65,7 +65,7 @@ struct generator <: Generator
 
 end
 
-struct extended_generator <: Generator
+mutable struct extended_generator <: Generator
 
     ## Generator DATA
     ##---------------
