@@ -83,6 +83,7 @@ function readDataset(DataSource)
     lines_at_bus = Dict{Int64, Vector{Int64}}()
     lines_start_at_bus = Dict{Int64, Vector{Int64}}()
     lines_end_at_bus = Dict{Int64, Vector{Int64}}()
+    get_bus_index = Dict{Int64, Int64}()
 
     for i in 1:length(busses)
 
@@ -90,6 +91,7 @@ function readDataset(DataSource)
         push!(lines_at_bus, busses[i]=> Vector{Int64}())
         push!(lines_start_at_bus, busses[i] => Vector{Int64}())
         push!(lines_end_at_bus, busses[i] => Vector{Int64}())
+        push!(get_bus_index, busses[i] => i)
 
     end
 
@@ -140,8 +142,8 @@ function readDataset(DataSource)
     end
 
     for i in 1:length(branch_df[:, 1])
-        vertex_edge_matrix[convert(Int64, branch_df[i,1]),i] = 1
-        vertex_edge_matrix[convert(Int64, branch_df[i,2]),i] = -1
+        vertex_edge_matrix[convert(Int64, get_bus_index[branch_df[i,1]]),i] = 1
+        vertex_edge_matrix[convert(Int64, get_bus_index[branch_df[i,2]]),i] = -1
         push!(adjacent_nodes[convert(Int64, branch_df[i,1])], branch_df[i,2])
     end
 
