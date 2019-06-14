@@ -35,6 +35,9 @@ function readDataset(DataSource)
     gen_df = to_df(XLSX.readtable(DataSource, "gen"))
     gencost_df = to_df(XLSX.readtable(DataSource, "gencost"))
     branch_df = to_df(XLSX.readtable(DataSource, "branch"))
+    global_df = to_df(XLSX.readtable(DataSource, "global"))
+
+    print(global_df)
 
     # Build JsonModel
     #----------------
