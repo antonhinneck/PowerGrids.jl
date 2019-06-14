@@ -165,7 +165,7 @@ function readDataset(DataSource)
     for i in 1:length(branch_df[:, 1])
         vertex_edge_matrix[convert(Int64, get_bus_index[branch_df[i,1]]),i] = 1
         vertex_edge_matrix[convert(Int64, get_bus_index[branch_df[i,2]]),i] = -1
-        push!(adjacent_nodes[convert(Int64, branch_df[i,1])], branch_df[i,2])
+        push!(adjacent_nodes[convert(Int64, get_bus_index[branch_df[i,1]])], get_bus_index[branch_df[i,2]])
     end
 
     dataset = PowerGrid(bus_df,
