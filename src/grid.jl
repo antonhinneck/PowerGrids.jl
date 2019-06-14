@@ -21,6 +21,8 @@ mutable struct PowerGrid
     lines_end_at_bus
     bus_demand
     jsonModel
+    bibtex
+    base_mva
 
 end
 
@@ -37,7 +39,23 @@ function readDataset(DataSource)
     branch_df = to_df(XLSX.readtable(DataSource, "branch"))
     global_df = to_df(XLSX.readtable(DataSource, "global"))
 
-    print(global_df)
+    if typeof(global_df[1,1]) <: Number
+        base_mva = convert(Float64,global_df[1,1])
+    else
+        base_mva = nothing
+    end
+
+    if typeof(global_df[1,2]) <: Number
+        objective = global_df[1,2]
+    else
+        objective = nothing
+    end
+
+    if string(global_df[1,3]) != "NaN"
+        bibtex = global_df[1,3]
+    else
+        bibtex = nothing
+    end
 
     # Build JsonModel
     #----------------
@@ -170,7 +188,9 @@ function readDataset(DataSource)
                         lines_start_at_bus,
                         lines_end_at_bus,
                         bus_demand,
-                        JsonModel)
+                        JsonModel,
+                        bibtex,
+                        base_mva)
 
     cd(@__DIR__)
     return dataset
