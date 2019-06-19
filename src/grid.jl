@@ -79,11 +79,50 @@ function readDataset(DataSource)
     if size(gen_df, 1) == size(gencost_df, 1)
         for i in 1:size(gen_df, 1)
             if is_extended_generator
-                push!(generators_input, extended_generator(gen_df[i, :]...,
-                                        gencost_df[i, :]...))
+                if (typeof(gen_df[i, 4]) <: Number) && (typeof(gen_df[i, 5]) <: Number)
+                    push!(generators_input, extended_generator(gen_df[i, :]...,
+                                            gencost_df[i, :]...))
+                else
+                    push!(generators_input, extended_generator(gen_df[i, 1],
+                                                                gen_df[i, 2],
+                                                                gen_df[i, 3],
+                                                                Inf,
+                                                                -Inf,
+                                                                gen_df[i, 6],
+                                                                gen_df[i, 7],
+                                                                gen_df[i, 8],
+                                                                gen_df[i, 9],
+                                                                gen_df[i, 10],
+                                                                gen_df[i, 11],
+                                                                gen_df[i, 12],
+                                                                gen_df[i, 13],
+                                                                gen_df[i, 14],
+                                                                gen_df[i, 15],
+                                                                gen_df[i, 16],
+                                                                gen_df[i, 17],
+                                                                gen_df[i, 18],
+                                                                gen_df[i, 19],
+                                                                gen_df[i, 20],
+                                                                gen_df[i, 21],
+                                                                gencost_df[i, :]...))
+                end
             else
-                push!(generators_input, generator(gen_df[i, :]...,
-                                        gencost_df[i, :]...))
+                if (typeof(gen_df[i, 4]) <: Number) && (typeof(gen_df[i, 5]) <: Number)
+                    push!(generators_input, generator(gen_df[i, :]...,
+                                            gencost_df[i, :]...))
+                else
+                    push!(generators_input, generator(gen_df[i, 1],
+                                                        gen_df[i, 2],
+                                                        gen_df[i, 3],
+                                                        Inf,
+                                                        -Inf,
+                                                        gen_df[i, 6],
+                                                        gen_df[i, 7],
+                                                        gen_df[i, 8],
+                                                        gen_df[i, 9],
+                                                        gen_df[i, 10],
+                                                        gencost_df[i, :]...))
+                end
             end
         end
     else
@@ -129,7 +168,7 @@ function readDataset(DataSource)
     for i in 1:length(generators)
 
         push!(generator_capacity, generators[i] => gen_df[i,9])
-        push!(generator_costs, generators[i] => gen_df[i,4] + gen_df[i,6])
+        push!(generator_costs, generators[i] => gencost_df[i,6])
         push!(generators_at_bus[gen_df[i,1]], generators[i])
 
     end
