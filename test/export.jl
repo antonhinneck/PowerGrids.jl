@@ -11,6 +11,7 @@ graph = PowerGrids.toGraph(grid)
 function decomposition(G::S where S <: AbstractSimpleGraph; n_cluster = 4, initialization = :rnd)
 
     g_nv = nv(G)
+    print(g_nv)
     g_ne = ne(G)
     adj = G.fadjlist
 
@@ -28,12 +29,13 @@ function decomposition(G::S where S <: AbstractSimpleGraph; n_cluster = 4, initi
 
 end
 
-function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
+function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd, cycl_limit = 1000)
 
     g_nv = nv(G)
     g_ne = ne(G)
     adj = G.fadjlist
-    print(adj)
+
+    n_cycls = 0
 
     init_visited = Array{Bool}(undef, g_nv)
     for i in 1:g_nv
@@ -52,21 +54,44 @@ function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
 
     if init_v != -1
 
-        function dfs_recursive(visited::Array{Bool}, trace::Array{Int64}, v_precc)
+        function dfs_recursive(visited::Array{Bool}, trace::Array{Int64}, v_precc; status = :search)
 
             v = trace[length(trace)]
+            lt = length(trace)
 
             if !visited[v]
                 visited[v] = true
                 for i in 1:length(adj[v])
-                    if adj[v][i] != v_precc
-                        child_trace = trace
-                        push!(child_trace, adj[v][i])
-                        dfs_recursive(visited, child_trace, v)
+                    if adj[v][i] != v_precc && n_cycls < cycl_limit
+                        dfs_recursive(visited, [trace..., adj[v][i]], v)
+                        #dfs_recursive([visited...], [trace..., adj[v][i]], v)
                     end
                 end
             else
-                push!(cycles, trace)
+
+                cycle = Vector{Int64}()
+                cycle_found = false
+                idx = lt
+
+                for i in 1:lt
+                    if trace[i] == v && i < idx
+                        idx = i
+                        cycle_found = true
+                    end
+                end
+
+                if cycle_found
+                    push!(cycles, [trace[i] for i in idx:lt])
+                    n_cycls += 1
+                end
+
+                if status == :search
+                    for i in 1:length(adj[v])
+                        if visited[adj[v][i]] && adj != v
+                            dfs_recursive([visited...], [trace..., adj[v][i]], v, status = :termination)
+                        end
+                    end
+                end
             end
         end
 
@@ -78,6 +103,6 @@ function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
     return cycles
 end
 
-cycles = dfs_wrapper(graph.Graph)
+cycles = dfs_wrapper(graph.Graph, cycl_limit = 1000000)
 
 #GraphVisualization.plot(graph, [400,400])
