@@ -4,7 +4,7 @@ using LightGraphs: ne, nv, AbstractSimpleGraph
 
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 14 busses
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[36]) # 588 busses
-grid = PowerGrids.readDataset(PowerGrids.datasets()[2]) # 118 busses
+grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 118 busses
 PowerGrids.datasets()
 graph = PowerGrids.toGraph(grid)
 
@@ -19,7 +19,7 @@ function decomposition(G::S where S <: AbstractSimpleGraph; n_cluster = 4, initi
     #--------------------
     clusters = Vector{Array{Bool, 1}}()
     for i in 1:length(clusters)
-        culsters[i] = Array{Bool,1}(g_nv)
+        clusters[i] = Array{Bool,1}(g_nv)
     end
 
     init_v = -1
@@ -103,6 +103,93 @@ function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd,
     return cycles
 end
 
-cycles = dfs_wrapper(graph.Graph, cycl_limit = 1000000)
+function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selection = :max)
+
+    g_nv = nv(G)
+    g_ne = ne(G)
+    adj = G.fadjlist
+
+    T = Vector{Int64}()
+    X = Vector{Int64}()
+    z = -1
+
+    # INITIALIZATION
+    #---------------
+    for i in 1:g_nv
+        push!(X, i)
+    end
+
+    if initialization == :min
+        z = minimum(X)
+    elseif initialization == :max
+        z = maximum(X)
+    elseif initialization == :rnd
+        z = rand(1:g_nv)
+    end
+
+    push!(T, z)
+
+    # MAIN ALGORITHM
+    #---------------
+
+    if z != -1
+
+        c = 0
+        T_X_empty = false
+        while !T_X_empty && c < 100
+
+            # GENERATE CUT SET OF T AND X
+            #----------------------------
+
+            T_X_empty = true
+            T_X = Vector{Int64}()
+            for i in 1:length(T)
+                if T[i] in Set(X)
+                    push!(T_X, T[i])
+                    T_X_empty = false
+                end
+            end
+            print(T_X, "\n")
+
+            if !T_X_empty
+
+                # SELECT NEXT VERTEX
+                #-------------------
+
+                if selection == :min
+                    z = minimum(T_X)
+                elseif selection == :max
+                    z = maximum(T_X)
+                else
+                    print("\nERROR: SELECTION FAILED.\n")
+                end
+
+                for i in 1:length(adj[z])
+                    if adj[z][i] in Set(T)
+                        # FIND CYCLE
+                    else
+                        push!(T, adj[z][i])
+                    end
+                end
+
+                # REMOVE z FROM X
+                #----------------
+
+                for i in 1:length(X)
+                    if X[i] == z
+                        deleteat!(X, i)
+                        break
+                    end
+                end
+            end
+            c += 1
+        end
+    else
+        print("\nERROR: INITIALIZATION FAILED.\n")
+    end
+end
+
+#cycles = dfs_wrapper(graph.Graph, cycl_limit = 1000000)
+cycles = paton(graph.Graph)
 
 #GraphVisualization.plot(graph, [400,400])
