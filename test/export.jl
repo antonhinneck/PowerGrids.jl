@@ -4,7 +4,7 @@ using LightGraphs: ne, nv, AbstractSimpleGraph
 
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 14 busses
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[36]) # 588 busses
-grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 118 busses
+grid = PowerGrids.readDataset(PowerGrids.datasets()[2]) # 118 busses
 PowerGrids.datasets()
 graph = PowerGrids.toGraph(grid)
 
@@ -109,6 +109,11 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     g_ne = ne(G)
     adj = G.fadjlist
 
+    level = Array{Int64, 1}(undef, g_nv)
+    anc = Array{Int64, 1}(undef, g_nv)
+
+    cycles = Vector{Vector{Int64}}()
+
     T = Vector{Int64}()
     X = Vector{Int64}()
     z = -1
@@ -128,6 +133,8 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     end
 
     push!(T, z)
+    level[z] = 0
+    anc[z] = 0
 
     # MAIN ALGORITHM
     #---------------
@@ -149,7 +156,6 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
                     T_X_empty = false
                 end
             end
-            print(T_X, "\n")
 
             if !T_X_empty
 
@@ -165,10 +171,23 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
                 end
 
                 for i in 1:length(adj[z])
-                    if adj[z][i] in Set(T)
-                        # FIND CYCLE
-                    else
-                        push!(T, adj[z][i])
+                    if  adj[z][i] != anc[z]
+                        if adj[z][i] in Set(T)
+                            cycle = Vector{Int64}()
+                            itr = 0
+                            push!(cycle, adj[z][i])
+                            last_v = z
+                            while itr < level[z] + 1 && last_v != adj[z][i]
+                                push!(cycle, last_v)
+                                last_v = anc[last_v]
+                                itr += 1
+                            end
+                            push!(cycles, cycle)
+                        else
+                            level[adj[z][i]] = level[z] + 1
+                            push!(T, adj[z][i])
+                            anc[adj[z][i]] = z
+                        end
                     end
                 end
 
@@ -187,9 +206,11 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     else
         print("\nERROR: INITIALIZATION FAILED.\n")
     end
+    return cycles
 end
 
 #cycles = dfs_wrapper(graph.Graph, cycl_limit = 1000000)
+t1 = time()
 cycles = paton(graph.Graph)
-
+print("RUN TIME: ", time() - t1)
 #GraphVisualization.plot(graph, [400,400])
