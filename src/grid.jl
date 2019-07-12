@@ -4,7 +4,7 @@ mutable struct PowerGrid
     gen::DataFrame
     gencost::DataFrame
     branch::DataFrame
-    busses
+    buses
     vertex_edge_matrix
     adjacent_nodes
     generators
@@ -64,7 +64,7 @@ function readDataset(DataSource)
         is_extended_generator = true
     end
 
-    busses_input = Vector{bus}()
+    buses_input = Vector{bus}()
     if is_extended_generator
         generators_input = Vector{extended_generator}()
     else
@@ -73,7 +73,7 @@ function readDataset(DataSource)
     branches_input = Vector{branch}()
 
     for i in 1:size(bus_df, 1)
-        push!(busses_input, bus(bus_df[i, :]...))
+        push!(buses_input, bus(bus_df[i, :]...))
     end
 
     if size(gen_df, 1) == size(gencost_df, 1)
@@ -133,11 +133,11 @@ function readDataset(DataSource)
         push!(branches_input, branch(branch_df[i, :]...))
     end
 
-    JsonModel = json_model(dataset_name,busses_input,branches_input,generators_input)
+    JsonModel = json_model(dataset_name,buses_input,branches_input,generators_input)
 
     # Build Model Data
     #-----------------
-    busses = [bus_df[:, 1]...]
+    buses = [bus_df[:, 1]...]
     bus_demand = Dict{Int64, Float64}()
     generators_at_bus = Dict{Int64, Vector{Int64}}()
     lines_at_bus = Dict{Int64, Vector{Int64}}()
@@ -145,19 +145,19 @@ function readDataset(DataSource)
     lines_end_at_bus = Dict{Int64, Vector{Int64}}()
     get_bus_index = Dict{Int64, Int64}()
 
-    for i in 1:length(busses)
+    for i in 1:length(buses)
 
-        push!(generators_at_bus, busses[i] => Vector{Int64}())
-        push!(lines_at_bus, busses[i]=> Vector{Int64}())
-        push!(lines_start_at_bus, busses[i] => Vector{Int64}())
-        push!(lines_end_at_bus, busses[i] => Vector{Int64}())
-        push!(get_bus_index, busses[i] => i)
+        push!(generators_at_bus, buses[i] => Vector{Int64}())
+        push!(lines_at_bus, buses[i]=> Vector{Int64}())
+        push!(lines_start_at_bus, buses[i] => Vector{Int64}())
+        push!(lines_end_at_bus, buses[i] => Vector{Int64}())
+        push!(get_bus_index, buses[i] => i)
 
     end
 
-    for i in 1:length(busses)
+    for i in 1:length(buses)
 
-        push!(bus_demand, busses[i] => bus_df[i,3])
+        push!(bus_demand, buses[i] => bus_df[i,3])
 
     end
 
@@ -211,7 +211,7 @@ function readDataset(DataSource)
                         gen_df,
                         gencost_df,
                         branch_df,
-                        busses,
+                        buses,
                         vertex_edge_matrix,
                         adjacent_nodes,
                         generators,

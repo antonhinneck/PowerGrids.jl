@@ -1,12 +1,18 @@
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 include("C:/Users/Anton Hinneck/.julia/packages/PowerGrids/src/PowerGrids.jl")
 using LightGraphs: ne, nv, AbstractSimpleGraph
+using SparseArrays: SparseMatrixCSC
 
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 14 busses
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[36]) # 588 busses
 grid = PowerGrids.readDataset(PowerGrids.datasets()[2]) # 118 busses
 PowerGrids.datasets()
 graph = PowerGrids.toGraph(grid)
+
+line_dict = Dict{Tuple{Int64, Int64}, Int64}()
+for i in 1:length(grid.lines)
+    push!(line_dict, (grid.line_start[grid.lines[i]], grid.line_end[grid.lines[i]]) => grid.lines[i])
+end
 
 function decomposition(G::S where S <: AbstractSimpleGraph; n_cluster = 4, initialization = :rnd)
 
@@ -206,11 +212,36 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     else
         print("\nERROR: INITIALIZATION FAILED.\n")
     end
-    return cycles
+    return cycles, T, [g_nv, g_ne]
 end
 
-#cycles = dfs_wrapper(graph.Graph, cycl_limit = 1000000)
+function adjacency_matrix(seq::Array{I, 1} where I <: Integer, nv::I where I <: Integer)
+
+    I = Array{Int64}(undef, nv)
+    J = Array{Int64}(undef, nv)
+    V = Array{Int64}(undef, nv)
+
+    for i in 2:nv
+
+        push!(I, seq[i - 1])
+        push!(J, seq[i])
+        push!(V, 1)
+
+    end
+
+    # SPARSE ARRAY: from, to, indctr
+    #-------------------------------
+    return SparseArrays.sparse(I, J, V, nv, nv)
+
+end
+
 t1 = time()
-cycles = paton(graph.Graph)
+cycles, ST, data = paton(graph.Graph)
 print("RUN TIME: ", time() - t1)
+print(ST)
+#adj = adjacency_matrix(ST, data[1])
+#print(adj)
+
+#cycles = dfs_wrapper(graph.Graph, cycle_limit = 1000000)
+#print(line_vector)
 #GraphVisualization.plot(graph, [400,400])
