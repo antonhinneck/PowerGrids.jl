@@ -24,24 +24,25 @@ function toGraph(PG::PowerGrid)
     rev_map_vertices = Dict{I where I <: Integer, I where I <: Integer}()
 
     vertices = 0
-    for i in 1:length(PG.busses)
+    for i in 1:length(PG.buses)
 
         # Add level 1 nodes
         #------------------
         add_vertex!(graph)
         vertices += 1
-        push!(VertexLabels, vertices => string(PG.busses[i]))
+        push!(VertexLabels, vertices => string(PG.buses[i]))
         push!(VertexTypes, vertices => 1)
-        push!(rev_map_vertices, PG.busses[i] => vertices)
+        push!(rev_map_vertices, PG.buses[i] => vertices)
         top_level_vertex = vertices
 
-        for j in 1:length(PG.generators_at_bus[PG.busses[i]])
+        #=
+        for j in 1:length(PG.generators_at_bus[PG.buses[i]])
             # print(top_level_vertex," - ")
             # Add level 2 nodes
             #------------------
             add_vertex!(graph)
             vertices += 1
-            push!(VertexLabels, vertices => string("gen: ", PG.generators_at_bus[PG.busses[i]][j]))
+            push!(VertexLabels, vertices => string("gen: ", PG.generators_at_bus[PG.buses[i]][j]))
             push!(VertexTypes, vertices => 2)
 
             # Add level 2 edges
@@ -52,6 +53,7 @@ function toGraph(PG::PowerGrid)
             push!(EdgeTypes, current_edge => 2)
 
         end
+        =#
     end
 
     for i in 1:length(PG.lines)

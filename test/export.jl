@@ -1,7 +1,7 @@
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 include("C:/Users/Anton Hinneck/.julia/packages/PowerGrids/src/PowerGrids.jl")
 using LightGraphs: ne, nv, AbstractSimpleGraph
-using SparseArrays: SparseMatrixCSC
+using SparseArrays
 
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[5]) # 14 busses
 #grid = PowerGrids.readDataset(PowerGrids.datasets()[36]) # 588 busses
@@ -114,6 +114,7 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     g_nv = nv(G)
     g_ne = ne(G)
     adj = G.fadjlist
+    print(g_nv, "   ", g_ne)
 
     level = Array{Int64, 1}(undef, g_nv)
     anc = Array{Int64, 1}(undef, g_nv)
@@ -217,11 +218,11 @@ end
 
 function adjacency_matrix(seq::Array{I, 1} where I <: Integer, nv::I where I <: Integer)
 
-    I = Array{Int64}(undef, nv)
-    J = Array{Int64}(undef, nv)
-    V = Array{Int64}(undef, nv)
+    I = Vector{Int64}()
+    J = Vector{Int64}()
+    V = Vector{Int64}()
 
-    for i in 2:nv
+    for i in 2:length(seq)
 
         push!(I, seq[i - 1])
         push!(J, seq[i])
@@ -238,9 +239,9 @@ end
 t1 = time()
 cycles, ST, data = paton(graph.Graph)
 print("RUN TIME: ", time() - t1)
-print(ST)
-#adj = adjacency_matrix(ST, data[1])
-#print(adj)
+
+adj = adjacency_matrix(ST, data[1])
+print(adj)
 
 #cycles = dfs_wrapper(graph.Graph, cycle_limit = 1000000)
 #print(line_vector)
