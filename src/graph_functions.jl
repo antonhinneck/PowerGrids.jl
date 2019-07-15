@@ -1,3 +1,105 @@
+# This implementation of the depth-first search algorithm is used
+# to produce a minimum spanning tree. Recursion is used.
+#----------------------------------------------------------------
+
+function dfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
+
+    g_nv = nv(G)
+    g_ne = ne(G)
+    adj = G.fadjlist
+
+    adj_length = Array{Int16, 1}(undef, g_nv)
+    SpanningTree = Array{Int16, 1}(undef, g_nv)
+    visited = Array{Bool, 1}(undef, g_nv)
+
+    for i in 1:g_nv
+
+        SpanningTree[i] = 0
+        visited[i] = false
+        adj_length[i] = length(adj[i])
+
+    end
+
+    z = -1
+
+    if initialization == :rnd
+        z = rand(1:g_nv)
+    end
+
+    SpanningTree[z] = 1
+    visited[z] = true
+
+    @inline function recursion(v::S where S <: Integer)
+
+        for i in 1:adj_length[v]
+            cv = adj[v][i]
+            if !visited[cv]
+                SpanningTree[cv] = v
+                visited[cv] = true
+                recursion(cv)
+            end
+        end
+    end
+
+    recursion(z)
+    return SpanningTree
+end
+
+# This implementation of the breadth-first search algorithm is used
+# to produce a minimum spanning tree. A queue is used.
+#----------------------------------------------------------------
+
+function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
+
+    g_nv = nv(G)
+    g_ne = ne(G)
+    adj = G.fadjlist
+
+    adj_length = Array{Int16, 1}(undef, g_nv)
+    SpanningTree = Array{Int16, 1}(undef, g_nv)
+    visited = Array{Bool, 1}(undef, g_nv)
+    queue = Vector{Int16}()
+
+    for i in 1:g_nv
+
+        SpanningTree[i] = 0
+        visited[i] = false
+        adj_length[i] = length(adj[i])
+
+    end
+
+    z = -1
+    if initialization == :rnd
+        z = rand(1:g_nv)
+    end
+
+    push!(queue, z)
+    SpanningTree[z] = 1
+    visited[z] = true
+
+    c = 0
+    while length(queue) != 0 && c <= 10000
+
+        deleteat!(queue, 1)
+
+        for i in 1:adj_length[z]
+            cv = adj[z][i]
+            if !visited[cv]
+                push!(queue, cv)
+                SpanningTree[cv] = z
+                visited[cv] = true
+            end
+        end
+
+        if length(queue) > 0
+            z = queue[1]
+        end
+        c += 1
+    end
+
+    return SpanningTree, visited
+end
+
 # Paton's algorithm for deriving a cyclic basis.
 # Minimum spanning tree is created in the process.
 #-------------------------------------------------
