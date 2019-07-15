@@ -102,7 +102,7 @@ end
 # Minimum spanning tree is created in the process.
 #-------------------------------------------------
 
-function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selection = :max)
+function paton(G::S where S <: AbstractSimpleGraph; initialization = :rnd, selection = :max)
 
     g_nv = nv(G)
     g_ne = ne(G)
