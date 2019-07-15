@@ -22,6 +22,7 @@ include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisu
 
 export datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list, line_vector
 
+include("./graph_functions.jl")
 include("./utils.jl")
 include("./grid_components.jl")
 include("./grid.jl")
