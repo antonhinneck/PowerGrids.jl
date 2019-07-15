@@ -109,6 +109,12 @@ function dfs_wrapper(G::S where S <: AbstractSimpleGraph; initialization = :rnd,
     return cycles
 end
 
+function bfs_wrapper(G::S where S <: AbstractSimpleGraph)
+
+
+
+end
+
 function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selection = :max)
 
     g_nv = nv(G)
@@ -140,8 +146,8 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     end
 
     push!(T, z)
-    level[z] = 0
-    anc[z] = 0
+    level[z] = 1
+    anc[z] = 1
 
     # MAIN ALGORITHM
     #---------------
@@ -150,7 +156,7 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
 
         c = 0
         T_X_empty = false
-        while !T_X_empty && c < 100
+        while !T_X_empty #&& c < 130
 
             # GENERATE CUT SET OF T AND X
             #----------------------------
@@ -213,36 +219,60 @@ function paton(G::S where S <: AbstractSimpleGraph; initialization = :min, selec
     else
         print("\nERROR: INITIALIZATION FAILED.\n")
     end
-    return cycles, T, [g_nv, g_ne]
+    return cycles, anc, [g_nv, g_ne]
 end
 
-function adjacency_matrix(seq::Array{I, 1} where I <: Integer, nv::I where I <: Integer)
+function adjacency_list(anc::Array{I, 1} where I <: Integer)
 
-    I = Vector{Int64}()
-    J = Vector{Int64}()
-    V = Vector{Int64}()
+    nv = length(anc)
+    adjacency_list = Array{Vector{Int64}}(undef, nv)
 
-    for i in 2:length(seq)
+    for i in 1:nv
 
-        push!(I, seq[i - 1])
-        push!(J, seq[i])
-        push!(V, 1)
+        adjacency_list[i] = Vector{Int64}()
 
     end
 
-    # SPARSE ARRAY: from, to, indctr
-    #-------------------------------
-    return SparseArrays.sparse(I, J, V, nv, nv)
+    # Start form 2 because first
+    # entry in spanning tree has no root
+    #-----------------------------------
+    for i in 2:nv
 
+        push!(adjacency_list[i], anc[i])
+        push!(adjacency_list[anc[i]], i)
+
+    end
+
+    return adjacency_list
+end
+
+function line_vector(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
+                     pg::S where S <: PowerGrids.PowerGrid)
+
+    nl = length(pg.lines)
+    lines = Array{Array{Int64, 1}}(undef, nl)
+    lv = Array{Int64, 1}(undef, nl)
+
+    for i in 1:nl
+
+        lines[i] = Array{Int64, 1}(undef, 2)
+        lines[i][1] = pg.line_start[pg.lines[i]]
+        lines[i][2] = pg.line_end[pg.lines[i]]
+        lines[i][2] in Set(adjl[lines[i][1]]) ? lv[i] = 1 : lv[i] = 0
+
+    end
+
+    return lv
 end
 
 t1 = time()
-cycles, ST, data = paton(graph.Graph)
+cycles, anc, data = paton(graph.Graph)
 print("RUN TIME: ", time() - t1)
 
-adj = adjacency_matrix(ST, data[1])
-print(adj)
+st = adjacency_list(anc)
+lv = line_vector(st, grid)
 
+#graph.Graph.fadjlist
 #cycles = dfs_wrapper(graph.Graph, cycle_limit = 1000000)
 #print(line_vector)
 #GraphVisualization.plot(graph, [400,400])
