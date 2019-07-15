@@ -20,7 +20,7 @@ using Pkg
 using DataFrames, XLSX, JSON, LightGraphs
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
-export datasets, readDataset, toGraph, AnnotatedSimpleGraph
+export datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list, line_vector
 
 include("./utils.jl")
 include("./grid_components.jl")
