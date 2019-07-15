@@ -146,6 +146,7 @@ function line_vector(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
     nl = length(pg.lines)
     lines = Array{Array{Int64, 1}}(undef, nl)
     lv = Array{Int64, 1}(undef, nl)
+    flv = Vector{Int64}()
 
     for i in 1:nl
 
@@ -156,5 +157,11 @@ function line_vector(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
 
     end
 
-    return lv
+    for i in 1:nl
+        if lv[i] == 1
+            push!(flv, pg.lines[i])
+        end
+    end
+
+    return flv
 end

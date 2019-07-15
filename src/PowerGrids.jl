@@ -17,15 +17,16 @@
 module PowerGrids
 
 using Pkg
-using DataFrames, XLSX, JSON, LightGraphs
+using DataFrames, XLSX, JSON
+using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_edge!
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
 export datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list, line_vector
 
-include("./graph_functions.jl")
 include("./utils.jl")
 include("./grid_components.jl")
 include("./grid.jl")
+include("./graph_functions.jl")
 include("./IO/io_json.jl")
 include("./IO/io_graph.jl")
 
