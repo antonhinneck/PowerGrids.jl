@@ -77,7 +77,7 @@ function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
     SpanningTree[z] = 1
     visited[z] = true
 
-    while length(queue) != 0 && c <= 10000
+    while length(queue) != 0
 
         deleteat!(queue, 1)
 
