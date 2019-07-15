@@ -77,7 +77,6 @@ function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
     SpanningTree[z] = 1
     visited[z] = true
 
-    c = 0
     while length(queue) != 0 && c <= 10000
 
         deleteat!(queue, 1)
@@ -94,10 +93,9 @@ function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
         if length(queue) > 0
             z = queue[1]
         end
-        c += 1
     end
 
-    return SpanningTree, visited
+    return SpanningTree
 end
 
 # Paton's algorithm for deriving a cyclic basis.
