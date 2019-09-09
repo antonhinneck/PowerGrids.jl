@@ -49,7 +49,69 @@ end
 # to produce a minimum spanning tree. A queue is used.
 #----------------------------------------------------------------
 
-function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
+function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd, debug = false)
+
+    g_nv = nv(G)
+    g_ne = ne(G)
+    adj = G.fadjlist
+
+    adj_length = Array{Int16, 1}(undef, g_nv)
+    SpanningTree = Array{Int16, 1}(undef, g_nv)
+    visited = Array{Bool, 1}(undef, g_nv)
+    queue = Vector{Int16}()
+
+    for i in 1:g_nv
+
+        SpanningTree[i] = 0
+        visited[i] = false
+        adj_length[i] = length(adj[i])
+
+    end
+
+    z = -1
+    if initialization == :rnd
+        z = rand(1:g_nv)
+    end
+
+    push!(queue, z)
+    SpanningTree[z] = 0
+    visited[z] = true
+
+    while length(queue) != 0
+
+        deleteat!(queue, 1)
+
+        for i in 1:adj_length[z]
+            cv = adj[z][i]
+            if !visited[cv]
+                push!(queue, cv)
+                SpanningTree[cv] = z
+                visited[cv] = true
+            end
+        end
+
+        if length(queue) > 0
+            z = queue[1]
+        end
+    end
+
+    if debug
+        for i in 1:g_nv
+            if !visited[i]
+                println("[INFO] Vertex ",i," not visited.")
+            end
+        end
+    end
+
+    return SpanningTree
+end
+
+# This implementation of the breadth-first search algorithm is used
+# to produce a minimum spanning tree, where certain edges are omitted.
+# A queue is used. The result is not viable if not all vertices were visited.
+#----------------------------------------------------------------------------
+
+function bfs_omit(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
 
     g_nv = nv(G)
     g_ne = ne(G)
@@ -96,6 +158,121 @@ function bfs(G::S where S <: AbstractSimpleGraph; initialization = :rnd)
     end
 
     return SpanningTree
+end
+
+# This function adds missing edges to a graph.
+#---------------------------------------------
+
+function addEdges(data, line_vector::Vector{Bool}, amnt)
+
+    lv = Array{Bool, 1}(undef, length(line_vector))
+    idxs = Vector{Int64}()
+
+    for i in 1:length(data.lines)
+
+        if !line_vector[i]
+            push!(idxs, i)
+        end
+    end
+
+    return lv
+end
+
+# This function adds missing edges to a graph.
+#---------------------------------------------
+
+function rmLines!(indicators::Vector{Bool}, data, amnt::T where T <: Integer; dual_override = [false for i in 1:length(data.lines)])
+
+    idxs = Vector{Int64}()
+    dual_idxs = Vector{Int64}()
+
+    for i in 1:length(indicators)
+
+        if indicators[i]
+            push!(idxs, i)
+        elseif dual_overrride[i]
+            push!(dual_idxs, i)
+        end
+    end
+
+    for i in 1:amnt
+
+        if length(dual_idxs) >= 1
+            idx = rand(1:length(dual_idxs))
+            indicators[idx] = false
+            deleteat!(dual_idxs, idx)
+        elseif length(dual_idxs) == 0 && length(idxs) >= 1
+            idx = rand(1:length(idxs))
+            indicators[idx] = false
+            deleteat!(idxs, idx)
+        end
+    end
+
+    return idxs
+end
+
+# This function shifts indicator's
+# values to new positions.
+#---------------------------------
+
+function shift!(idxs::Vector{Int64}, data, amnt::T where T <: Integer)
+
+    output = nothing
+
+    if amnt > length(idxs)
+        amnt = length(idxs)
+    end
+
+    if length(idxs) > 0
+
+        indicators = [true for i in 1:length(data.lines)]
+
+        for i in 1:amnt
+
+            idx = rand(1:length(idxs))
+            indicators[idx] = false
+            deleteat!(idxs, idx)
+
+        end
+
+        output = indicators
+
+    else
+
+        idxs = [data.lines[i] for i in 1:length(data.lines)]
+        idctrs = [true for i in 1:length(data.lines)]
+        for i in 1:length(data.lines)
+            idx = rand(1:length(idxs))
+            deleteat!(idxs, idx)
+            idctrs[i] = false
+        end
+        output = idctrs
+
+    end
+
+    return output
+end
+
+# This function generates line indicators
+# using a solution vector.
+#----------------------------------------
+
+@inline function solutionToLineIndicators!(line_indicators::Array{Bool, 1}, solution::Array{Float64, 1}, data)
+
+    len_sol = length(solution)
+    amnt_lines = length(data.lines)
+
+    line_statuses = solution[(len_sol - amnt_lines):len_sol]
+
+    line_indicators = Vector{Bool}()
+
+    for i in 1:amnt_lines
+        if round(line_statuses[i]) == 1
+            push!(line_indicators, true)
+        else
+            push!(line_indicators, false)
+        end
+    end
 end
 
 # Paton's algorithm for deriving a cyclic basis.
@@ -223,14 +400,14 @@ function adjacency_list(anc::Array{I, 1} where I <: Integer)
 
     end
 
-    # Start form 2 because first
-    # entry in spanning tree has no root
-    #-----------------------------------
-    for i in 2:nv
-
-        push!(adjacency_list[i], anc[i])
-        push!(adjacency_list[anc[i]], i)
-
+    # Ignore entry if anc[i] == 0.
+    # This entry in the spanning tree has no root.
+    #---------------------------------------------
+    for i in 1:nv
+        if anc[i] != 0
+            push!(adjacency_list[i], anc[i])
+            push!(adjacency_list[anc[i]], i)
+        end
     end
 
     return adjacency_list
@@ -240,12 +417,12 @@ end
 # a minimum spanning tree.
 #-----------------------------------------------------------------------
 
-function line_vector(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
-                     pg::S where S <: PowerGrids.PowerGrid)
+function SpanningTreeToIndicators(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
+                                  pg::S where S <: PowerGrids.PowerGrid; returnType = :set)
 
     nl = length(pg.lines)
     lines = Array{Array{Int64, 1}}(undef, nl)
-    lv = Array{Int64, 1}(undef, nl)
+    lv = Array{Bool, 1}(undef, nl)
     flv = Vector{Int64}()
 
     for i in 1:nl
@@ -253,15 +430,19 @@ function line_vector(adjl::S where S <: Array{Array{T, 1}} where T <: Integer,
         lines[i] = Array{Int64, 1}(undef, 2)
         lines[i][1] = pg.line_start[pg.lines[i]]
         lines[i][2] = pg.line_end[pg.lines[i]]
-        lines[i][2] in Set(adjl[lines[i][1]]) ? lv[i] = 1 : lv[i] = 0
+        lines[i][2] in Set(adjl[lines[i][1]]) ? lv[i] = true : lv[i] = false
 
     end
 
     for i in 1:nl
-        if lv[i] == 1
+        if lv[i]
             push!(flv, pg.lines[i])
         end
     end
 
-    return flv
+    if returnType == :set
+        return flv
+    elseif returnType == :bool
+        return lv
+    end
 end

@@ -17,6 +17,7 @@ function to_df(raw_data)
 # This function takes 2 Arrays
 # and constructs a DataFrame.
 
+
     if typeof(raw_data) <: Tuple
         df = DataFrame(raw_data[1], raw_data[2])
     end
@@ -24,7 +25,7 @@ function to_df(raw_data)
 
 end
 
-function datasets()
+function datasets(verbose = false)
 # This function returns all data
 # file names in the directory "datasets".
 
@@ -45,6 +46,29 @@ function datasets()
         i += 1
     end
 
+    if verbose
+        for i in 1:length(datasets)
+            println("[INFO] ", datasets[i]," - ", i)
+        end
+    end
     # Return data files
     return datasets
+end
+
+# This function returns
+# a permuted array.
+#----------------------
+
+function rndPermute(a::Array{T, 1} where T <: Any)
+
+    idxs = [i for i in 1:length(a)]
+    permutation = Vector{Int64}()
+
+    while length(idxs) > 0
+        idx = rand(1:length(idxs))
+        push!(permutation, a[idxs[idx]])
+        deleteat!(idxs, idx)
+    end
+
+    return permutation
 end
