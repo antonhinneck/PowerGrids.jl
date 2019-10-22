@@ -39,6 +39,11 @@ function readDataset(DataSource)
     branch_df = to_df(XLSX.readtable(DataSource, "branch"))
     global_df = to_df(XLSX.readtable(DataSource, "global"))
 
+    geotags = false
+    if size(bus_df, 2) == 15
+        geotags = true
+    end
+
     if typeof(global_df[1,1]) <: Number
         base_mva = convert(Float64,global_df[1,1])
     else
@@ -73,7 +78,11 @@ function readDataset(DataSource)
     branches_input = Vector{branch}()
 
     for i in 1:size(bus_df, 1)
-        push!(buses_input, bus(bus_df[i, :]...))
+        if geotags
+            push!(buses_input, bus(bus_df[i, :]...))
+        else
+            push!(buses_input, bus(bus_df[i, :]..., 0.0, 0.0))
+        end
     end
 
     if size(gen_df, 1) == size(gencost_df, 1)

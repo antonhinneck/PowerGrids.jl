@@ -10,6 +10,13 @@ mutable struct json_model
 
 end
 
+function upload_dataset(data, url::String)
+
+    postBody = JSON.json(data.jsonModel)
+    HTTP.request("POST", url, ["Content-Type" => "application/json;charset=UTF-8"], postBody)
+
+end
+
 #postBody = JSON.json(data.jsonModel)
 #HTTP.request("POST", "http://localhost:8080/data/upload", ["Content-Type" => "application/json;charset=UTF-8"], postBody)
 

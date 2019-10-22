@@ -17,6 +17,8 @@ mutable struct bus <: Bus
     zone::S where S<:Number
     Vmax::S where S<:Number
     Vmin::S where S<:Number
+    latitude::S where S<:Real
+    longitude::S where S<:Real
 
 end
 

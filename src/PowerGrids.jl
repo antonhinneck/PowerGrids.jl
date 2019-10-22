@@ -21,7 +21,7 @@ using DataFrames, XLSX, JSON
 using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_edge!
 include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
-export datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list, SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!
+export datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list, SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!, upload_dataset
 
 include("./utils.jl")
 include("./grid_components.jl")
