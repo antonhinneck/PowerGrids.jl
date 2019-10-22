@@ -4,7 +4,7 @@
 mutable struct json_model
 
     name::String
-    busses::Vector{B where B <: Bus}
+    buses::Vector{B where B <: Bus}
     branches::Vector{B where B <: Branch}
     generators::Vector{G where G <: Generator}
 
@@ -13,7 +13,7 @@ end
 function upload_dataset(data, url::String)
 
     postBody = JSON.json(data.jsonModel)
-    HTTP.request("POST", url, ["Content-Type" => "application/json;charset=UTF-8"], postBody)
+    HTTP.request("POST", url, ["Content-Type" => "application/json;charset=UTF-8"], postBody, require_ssl_verification = false)
 
 end
 
