@@ -28,7 +28,7 @@ end
 
 function readDataset(DataSource)
 
-    dataset_name = DataSource[1:(length(DataSource) - 4)]
+    dataset_name = DataSource[1:(length(DataSource) - 5)]
 
     cd(@__DIR__)
     cd("datasets")
