@@ -24,7 +24,6 @@ end
 
 mutable struct branch <: Branch
 
-
     fbus::S where S<:Number
     tbus::S where S<:Number
     r::S where S<:Number

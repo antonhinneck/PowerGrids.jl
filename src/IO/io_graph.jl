@@ -23,17 +23,15 @@ function toGraph(PG::PowerGrid)
     push!(EdgeTypeLabels, 2 => "connnection")
     rev_map_vertices = Dict{I where I <: Integer, I where I <: Integer}()
 
-    vertices = 0
     for i in 1:length(PG.buses)
 
         # Add level 1 nodes
         #------------------
         add_vertex!(graph)
-        vertices += 1
-        push!(VertexLabels, vertices => string(PG.buses[i]))
-        push!(VertexTypes, vertices => 1)
-        push!(rev_map_vertices, PG.buses[i] => vertices)
-        top_level_vertex = vertices
+        push!(VertexLabels, i => string(PG.buses[i]))
+        push!(VertexTypes, i => 1)
+        push!(rev_map_vertices, PG.buses[i] => i)
+        #top_level_vertex = vertices
 
         #=
         for j in 1:length(PG.generators_at_bus[PG.buses[i]])
@@ -60,7 +58,7 @@ function toGraph(PG::PowerGrid)
 
         # Add level 1 edges
         #------------------
-        current_edge = Tuple([rev_map_vertices[PG.line_start[PG.lines[i]]], rev_map_vertices[PG.line_end[PG.lines[i]]]])
+        current_edge = Tuple([rev_map_vertices[PG.line_start[i]], rev_map_vertices[PG.line_end[PG.lines[i]]]])
         add_edge!(graph, current_edge...)
         push!(EdgeLabels, current_edge => string("e: ",current_edge[1]," - ",current_edge[2]))
         push!(EdgeTypes, current_edge => 1)
