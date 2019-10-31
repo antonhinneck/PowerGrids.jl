@@ -65,12 +65,12 @@ function toGraph(PG::PowerGrid)
 
     end
 
-    return GraphVisualization.AnnotatedSimpleGraph(graph,
-                                                    VertexLabels,
-                                                    VertexTypes,
-                                                    VertexTypeLabels,
-                                                    EdgeLabels,
-                                                    EdgeTypes,
-                                                    EdgeTypeLabels)
+    #return GraphVisualization.AnnotatedSimpleGraph(graph,
+                                                    #VertexLabels,
+                                                    ##VertexTypes,
+                                                    #VertexTypeLabels,
+                                                    #EdgeLabels,
+                                                    #EdgeTypes,
+                                                    #EdgeTypeLabels)
 
 end
