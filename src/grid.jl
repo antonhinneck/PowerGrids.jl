@@ -1,5 +1,5 @@
 #hi
-#hello  
+#hello
 mutable struct PowerGrid
 #
     bus::DataFrame
@@ -7,6 +7,8 @@ mutable struct PowerGrid
     gencost::DataFrame
     branch::DataFrame
     buses
+    bus_decomposed
+    bus_is_root
     vertex_edge_matrix
     adjacent_nodes
     generators
@@ -14,6 +16,7 @@ mutable struct PowerGrid
     generator_costs
     generators_at_bus
     lines
+    line_is_aux
     line_start
     line_end
     line_capacity
@@ -149,6 +152,8 @@ function readDataset(DataSource)
     # Build Model Data
     #-----------------
     buses = [bus_df[:, 1]...]
+    bus_decomposed = Vector{Bool}()
+    bus_is_root = Vector{Bool}()
     bus_demand = Dict{Int64, Float64}()
     generators_at_bus = Dict{Int64, Vector{Int64}}()
     lines_at_bus = Dict{Int64, Vector{Int64}}()
@@ -163,6 +168,8 @@ function readDataset(DataSource)
         push!(lines_start_at_bus, buses[i] => Vector{Int64}())
         push!(lines_end_at_bus, buses[i] => Vector{Int64}())
         push!(get_bus_index, buses[i] => i)
+        push!(bus_decomposed, false)
+        push!(bus_is_root, true)
 
     end
 
@@ -189,6 +196,7 @@ function readDataset(DataSource)
     line_end = Dict{Int64, Int64}()
     line_capacity = Dict{Int64, Float64}()
     line_reactance = Dict{Int64, Float64}()
+    line_is_aux = Dict{Int64, Bool}()
 
     for i in 1:length(lines)
 
@@ -200,6 +208,7 @@ function readDataset(DataSource)
         push!(lines_at_bus[branch_df[i,2]], i)
         push!(lines_start_at_bus[branch_df[i,1]], i)
         push!(lines_end_at_bus[branch_df[i,2]], i)
+        push!(line_is_aux, i => false)
 
     end
 
@@ -223,6 +232,8 @@ function readDataset(DataSource)
                         gencost_df,
                         branch_df,
                         buses,
+                        bus_decomposed,
+                        bus_is_root,
                         vertex_edge_matrix,
                         adjacent_nodes,
                         generators,
@@ -230,6 +241,7 @@ function readDataset(DataSource)
                         generator_costs,
                         generators_at_bus,
                         lines,
+                        line_is_aux,
                         line_start,
                         line_end,
                         line_capacity,
