@@ -73,7 +73,7 @@ function rndPermute(a::Array{T, 1} where T <: Any)
     return permutation
 end
 
-function addBus!(pg::PowerGrid; demand = 0.0)
+function addBus!(pg::PowerGrid; demand = 0.0, root = 0)
     nb = length(pg.buses)
     id = pg.buses[nb] + 1
     push!(pg.buses, id)
@@ -85,32 +85,39 @@ function addBus!(pg::PowerGrid; demand = 0.0)
     push!(pg.lines_end_at_bus, id => Vector{Int64}())
     push!(pg.adjacent_nodes, Vector{Int64}())
     push!(pg.generators_at_bus, id => Vector{Int64}())
+    push!(pg.root_bus, id => root)
     return id
 end
 
-function addLine!(pg::PowerGrid, tbus, fbus; is_aux = false, reactance = 0.0001, capacity = 5000.0)
+function addLine!(pg::PowerGrid, tbus, fbus; is_aux = false, is_proxy = false, reactance = 10e-5, capacity = 5000.0)
     nl = length(pg.lines)
     id = nl + 1
     push!(pg.lines, id)
     push!(pg.lines_at_bus[tbus], id)
     push!(pg.lines_at_bus[fbus], id)
     push!(pg.line_is_aux, id => is_aux)
+    push!(pg.line_is_proxy, id => is_proxy)
     push!(pg.line_start, id => tbus)
     push!(pg.lines_start_at_bus[tbus], id)
     push!(pg.line_end, id => fbus)
     push!(pg.lines_end_at_bus[fbus], id)
     push!(pg.line_capacity, id => capacity)
     push!(pg.line_reactance, id => reactance)
+    return id
 end
 
 function splitBus!(pg::PowerGrid, id::Int64)
     if !pg.bus_decomposed[id]
+        sg = sub_grid(id, Vector{Int64}(), Vector{Int64}())
+        push!(sg.buses, id)
         new_buses = Vector{Int64}()
         if length(pg.lines_at_bus[id]) > 1
             for i in 1:length(pg.lines_at_bus[id])
-                nb = addBus!(pg)
+                nb = addBus!(pg, root = id)
                 push!(new_buses, nb)
-                addLine!(pg, id, nb, is_aux = true)
+                push!(sg.buses, nb)
+                lid = addLine!(pg, id, nb, is_aux = true)
+                push!(sg.lines, lid)
                 # Reconfigure Lines
                 cl = pg.lines_at_bus[id][1]
                 deleteat!(pg.lines_at_bus[id], 1)
@@ -130,11 +137,17 @@ function splitBus!(pg::PowerGrid, id::Int64)
             # Construct Auxilliary Lines
             for i in 1:length(new_buses)
                 for j in (i + 1):length(new_buses)
-                    addLine!(pg, new_buses[i], new_buses[j], is_aux = true)
+                    lid = addLine!(pg, new_buses[i], new_buses[j], is_aux = true, is_proxy = true)
+                    push!(sg.lines, lid)
                 end
             end
         end
         pg.bus_decomposed[id] = true
+        push!(pg.root_buses, id)
+        if pg.sub_grids == nothing
+            pg.sub_grids = Vector{sub_grid}()
+        end
+        push!(pg.sub_grids, sg)
         return true, new_buses
     else
         println("A bus can only be split once.")

@@ -1,14 +1,14 @@
-#hi
-#hello
 mutable struct PowerGrid
-#
+
     bus::DataFrame
     gen::DataFrame
     gencost::DataFrame
     branch::DataFrame
     buses
+    root_buses
     bus_decomposed
     bus_is_root
+    root_bus
     vertex_edge_matrix
     adjacent_nodes
     generators
@@ -17,6 +17,7 @@ mutable struct PowerGrid
     generators_at_bus
     lines
     line_is_aux
+    line_is_proxy
     line_start
     line_end
     line_capacity
@@ -28,6 +29,15 @@ mutable struct PowerGrid
     jsonModel
     bibtex
     base_mva
+    sub_grids
+
+end
+
+mutable struct sub_grid
+
+    root_bus::Int64
+    buses::Vector{Int64}
+    lines::Vector{Int64}
 
 end
 
@@ -152,6 +162,7 @@ function readDataset(DataSource)
     # Build Model Data
     #-----------------
     buses = [bus_df[:, 1]...]
+    root_buses = Vector{Int64}()
     bus_decomposed = Vector{Bool}()
     bus_is_root = Vector{Bool}()
     bus_demand = Dict{Int64, Float64}()
@@ -160,6 +171,7 @@ function readDataset(DataSource)
     lines_start_at_bus = Dict{Int64, Vector{Int64}}()
     lines_end_at_bus = Dict{Int64, Vector{Int64}}()
     get_bus_index = Dict{Int64, Int64}()
+    root_bus = Dict{Int64, Int64}()
 
     for i in 1:length(buses)
 
@@ -170,6 +182,7 @@ function readDataset(DataSource)
         push!(get_bus_index, buses[i] => i)
         push!(bus_decomposed, false)
         push!(bus_is_root, true)
+        push!(root_bus, i => 0)
 
     end
 
@@ -197,6 +210,7 @@ function readDataset(DataSource)
     line_capacity = Dict{Int64, Float64}()
     line_reactance = Dict{Int64, Float64}()
     line_is_aux = Dict{Int64, Bool}()
+    line_is_proxy = Dict{Int64, Bool}()
 
     for i in 1:length(lines)
 
@@ -209,6 +223,7 @@ function readDataset(DataSource)
         push!(lines_start_at_bus[branch_df[i,1]], i)
         push!(lines_end_at_bus[branch_df[i,2]], i)
         push!(line_is_aux, i => false)
+        push!(line_is_proxy, i => false)
 
     end
 
@@ -232,8 +247,10 @@ function readDataset(DataSource)
                         gencost_df,
                         branch_df,
                         buses,
+                        root_buses,
                         bus_decomposed,
                         bus_is_root,
+                        root_bus,
                         vertex_edge_matrix,
                         adjacent_nodes,
                         generators,
@@ -242,6 +259,7 @@ function readDataset(DataSource)
                         generators_at_bus,
                         lines,
                         line_is_aux,
+                        line_is_proxy,
                         line_start,
                         line_end,
                         line_capacity,
@@ -252,7 +270,8 @@ function readDataset(DataSource)
                         bus_demand,
                         JsonModel,
                         bibtex,
-                        base_mva)
+                        base_mva,
+                        nothing)
 
     cd(@__DIR__)
     return dataset
