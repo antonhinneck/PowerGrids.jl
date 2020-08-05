@@ -155,3 +155,79 @@ function splitBus!(pg::PowerGrid, id::Int64)
         return false
     end
 end
+
+function _splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
+    if !pg.bus_decomposed[id]
+        sg = sub_grid(id, Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Dict{Int64, Int64}(), Dict{Int64, Dict{Int64, Int64}}())
+        push!(sg.buses, id)
+        connectors = Vector{Int64}()
+        bus_bars = Vector{Int64}()
+        bus_bar_root_line = Dict{Int64, Int64}()
+        externalLines = Vector{Int64}()
+        external_line_by_connector = Dict{Int64, Int64}()
+        internal_line_by_bus_bar = Dict{Int64, Dict{Int64, Int64}}()
+        if length(pg.lines_at_bus[id]) >= 1
+            # Construct connectors
+            for i in 1:length(pg.lines_at_bus[id])
+                nb = addBus!(pg, root = id)
+                push!(external_line_by_connector, nb => pg.lines_at_bus[id][1])
+                push!(externalLines, pg.lines_at_bus[id][1])
+                push!(connectors, nb)
+                push!(sg.buses, nb)
+                # Connectors - Reconfigure lines
+                cl = pg.lines_at_bus[id][1]
+                deleteat!(pg.lines_at_bus[id], 1)
+                if cl in pg.lines_start_at_bus[id]
+                    idx = indexin(cl, pg.lines_start_at_bus[id])[]
+                    deleteat!(pg.lines_start_at_bus[id], idx)
+                    push!(pg.lines_start_at_bus[nb], cl)
+                    pg.line_start[cl] = nb
+                else
+                    idx = indexin(cl, pg.lines_end_at_bus[id])[]
+                    deleteat!(pg.lines_end_at_bus[id], idx)
+                    push!(pg.lines_end_at_bus[nb], cl)
+                    pg.line_end[cl] = nb
+                end
+                push!(pg.lines_at_bus[nb], cl)
+            end
+            # Construct bus bars
+            for i in 1:n_bus_bars
+                nb = addBus!(pg, root = id)
+                push!(bus_bars, nb)
+                push!(sg.buses, nb)
+            end
+            # Construct connector - bus bar lines
+            for bb in bus_bars
+                internalLine = Dict{Int64, Int64}()
+                for con in connectors
+                    line_id = addLine!(pg, bb, con, is_aux = true, is_proxy = true)
+                    push!(internalLine, external_line_by_connector[con] => line_id)
+                    push!(sg.lines, line_id)
+                end
+                push!(internal_line_by_bus_bar, bb => internalLine)
+            end
+            # Construct root - bus bar lines
+            for bb in bus_bars
+                line_id = addLine!(pg, id, bb, is_aux = true, is_proxy = true)
+                push!(bus_bar_root_line, bb => line_id)
+                push!(sg.lines, line_id)
+            end
+        end
+        pg.bus_decomposed[id] = true
+        push!(pg.root_buses, id)
+        if pg.sub_grids == nothing
+            pg.sub_grids = Vector{sub_grid}()
+        end
+        sg.connectors = connectors
+        sg.bus_bars = bus_bars
+        sg.internalLineByBusBar = internal_line_by_bus_bar
+        sg.externalLines = externalLines
+        sg.bus_bar_root_line = bus_bar_root_line
+        push!(pg.sub_grids, sg)
+        return true
+    else
+        println("A bus can only be split once.")
+        println("Consider reloading the dataset, to perform this operation.")
+        return false
+    end
+end

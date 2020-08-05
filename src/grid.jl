@@ -37,7 +37,12 @@ mutable struct sub_grid
 
     root_bus::Int64
     buses::Vector{Int64}
+    bus_bars::Vector{Int64}
+    connectors::Vector{Int64}
     lines::Vector{Int64}
+    externalLines::Vector{Int64}
+    bus_bar_root_line::Dict{Int64, Int64}
+    internalLineByBusBar::Dict{Int64, Dict{Int64, Int64}}
 
 end
 
