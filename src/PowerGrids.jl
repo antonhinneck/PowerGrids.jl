@@ -23,7 +23,8 @@ using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_ed
 
 export PowerGrid, datasets, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list,
         SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!, upload_dataset,
-        lmps_model, addBus!, addLine!, splitBus!, _splitBus!, dfs, bfs, bfs_omit
+        lmps_model, addBus!, addLine!, splitBus!, _splitBus!, dfs, bfs, bfs_omit,
+        newBus!, update_line, split_build_x0
 
 include("./grid_components.jl")
 include("./grid.jl")

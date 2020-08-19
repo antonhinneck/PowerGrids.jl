@@ -9,6 +9,8 @@ mutable struct PowerGrid
     bus_decomposed
     bus_is_root
     root_bus
+    bus_type
+    bus_is_aux
     vertex_edge_matrix
     adjacent_nodes
     generators
@@ -177,6 +179,8 @@ function readDataset(DataSource)
     lines_end_at_bus = Dict{Int64, Vector{Int64}}()
     get_bus_index = Dict{Int64, Int64}()
     root_bus = Dict{Int64, Int64}()
+    bus_type = Dict{Int64, Int64}()
+    bus_is_aux = Dict{Int64, Bool}()
 
     for i in 1:length(buses)
 
@@ -188,6 +192,8 @@ function readDataset(DataSource)
         push!(bus_decomposed, false)
         push!(bus_is_root, true)
         push!(root_bus, i => 0)
+        push!(bus_type, i => 1)
+        push!(bus_is_aux, i => false)
 
     end
 
@@ -256,6 +262,8 @@ function readDataset(DataSource)
                         bus_decomposed,
                         bus_is_root,
                         root_bus,
+                        bus_type,
+                        bus_is_aux,
                         vertex_edge_matrix,
                         adjacent_nodes,
                         generators,
