@@ -30,10 +30,14 @@ export set_csv_path, csv_cases, select_csv_case, loadCase
 
 include("./structs_main.jl")
 include("./structs_aux.jl")
+
 include("./IO/io_json.jl")
 include("./IO/in_csv.jl")
+
 include("./load.jl")
-include("./utils.jl")
+
+include("./utils_change_network.jl")
+include("./utils_bus_splitting.jl")
 #include("./graph_functions.jl")
 #include("./IO/io_graph.jl")
 
