@@ -1,49 +1,12 @@
 # Functions to convert the data sets into a JSON string.
 #-------------------------------------------------------
 
-mutable struct json_model
+function upload_dataset(pg::PowerGrid, url::String)
 
-    name::String
-    buses::Vector{B where B <: Bus}
-    branches::Vector{B where B <: Branch}
-    generators::Vector{G where G <: Generator}
-
-end
-
-struct lmp
-
-    bus_i::Int64
-    lmp::Float64
-
-end
-
-mutable struct lmps_model
-
-    datasetName::String
-    lmps::Vector{lmp}
-
-end
-
-struct NodalClusterAssignment
-
-    bus_i::Int64
-    clusterNumber::Int64
-
-end
-
-mutable struct NodalClustering
-
-    datasetName::String
-    name::String
-    type::String
-    clusterAmount::Int64
-    nodalClusterAssignments::Vector{NodalClusterAssignment}
-
-end
-
-function upload_dataset(data, url::String)
-
-    postBody = JSON.json(data.jsonModel)
+    postBody = JSON.json(_jsonModel(CASE_NAME,
+                                    pg.buses_input,
+                                    pg.generators_input,
+                                    pg.branches_input))
     HTTP.request("POST", url, ["Content-Type" => "application/json;charset=UTF-8"], postBody, require_ssl_verification = false)
 
 end
@@ -81,7 +44,6 @@ function upload_clustering(data, _buses, _assignments, _url::String; name = "", 
 
     postBody = JSON.json(nc)
     HTTP.request("POST", _url, ["Content-Type" => "application/json;charset=UTF-8"], postBody, require_ssl_verification = false)
-
 end
 
 #postBody = JSON.json(data.jsonModel)

@@ -1,9 +1,55 @@
+mutable struct PowerGrid
+    # bus::DataFrame
+    # gen::DataFrame
+    # gencost::DataFrame
+    # branch::DataFrame
+    # buses_input
+    # generators_input
+    # branches_input
+    buses
+    root_buses
+    bus_decomposed
+    bus_is_root
+    root_bus
+    bus_type
+    bus_is_aux
+    vertex_edge_matrix
+    adjacent_nodes
+    generators
+    generator_capacity_min
+    generator_capacity_max
+    generator_c1
+    generators_at_bus
+    lines
+    line_is_aux
+    line_is_proxy
+    line_start
+    line_end
+    line_capacity
+    line_reactance
+    lines_at_bus
+    lines_start_at_bus
+    lines_end_at_bus
+    bus_demand
+    sub_grids
+end
+
+mutable struct sub_grid
+    root_bus::Int64
+    buses::Vector{Int64}
+    bus_bars::Vector{Int64}
+    connectors::Vector{Int64}
+    lines::Vector{Int64}
+    externalLines::Vector{Int64}
+    bus_bar_root_line::Dict{Int64, Int64}
+    internalLineByBusBar::Dict{Int64, Dict{Int64, Int64}}
+end
+
 abstract type Bus end
 abstract type Branch end
 abstract type Generator end
 
 mutable struct bus <: Bus
-
     bus_i::S where S<:Integer
     type::S where S<:Real
     Pd::S where S<:Real
@@ -17,13 +63,11 @@ mutable struct bus <: Bus
     zone::S where S<:Number
     Vmax::S where S<:Number
     Vmin::S where S<:Number
-    latitude::S where S<:Real
-    longitude::S where S<:Real
-
+    # latitude::S where S<:Real
+    # longitude::S where S<:Real
 end
 
 mutable struct branch <: Branch
-
     fbus::S where S<:Number
     tbus::S where S<:Number
     r::S where S<:Number
@@ -37,11 +81,9 @@ mutable struct branch <: Branch
     status::S where S<:Number
     angmin::S where S<:Number
     angmax::S where S<:Number
-
 end
 
 mutable struct generator <: Generator
-
     ## Generator DATA
     ##---------------
     bus_i::S where S<:Number
@@ -60,14 +102,12 @@ mutable struct generator <: Generator
     startup::S where S<:Number
     shutdown::S where S<:Number
     n::S where S<:Number
-    cMinus1::S where S<:Number
-    test::S where S<:Number
+    c2::S where S<:Number
+    c1::S where S<:Number
     c0::S where S<:Number
-
 end
 
 mutable struct extended_generator <: Generator
-
     ## Generator DATA
     ##---------------
     bus_i::S where S<:Number
@@ -91,7 +131,6 @@ mutable struct extended_generator <: Generator
     ramp_30::S where S<:Number
     ramp_q::S where S<:Number
     apf::S where S<:Number
-
     ## Cost DATA
     ##---------------
     two::S where S<:Number
@@ -101,5 +140,4 @@ mutable struct extended_generator <: Generator
     cMinus1::S where S<:Number
     test::S where S<:Number
     c0::S where S<:Number
-
 end

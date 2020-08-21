@@ -25,36 +25,6 @@ function to_df(raw_data)
 
 end
 
-function datasets(verbose = false)
-# This function returns all data
-# file names in the directory "datasets".
-
-    # Read file names
-    cd((@__DIR__))
-    cd("datasets")
-    itr = walkdir(pwd(), topdown = false, follow_symlinks = false)
-    datasets = first(itr)[3]
-
-    # Remove non-data files
-    i = 1
-    print("-------------\n")
-    while (i <= length(datasets))
-        if !(datasets[i][(length(datasets[i]) - 4):length(datasets[i])] == ".xlsx")
-            deleteat!(datasets, i)
-            i = i - 1
-        end
-        i += 1
-    end
-
-    if verbose
-        for i in 1:length(datasets)
-            println("[INFO] ", datasets[i]," - ", i)
-        end
-    end
-    # Return data files
-    return datasets
-end
-
 # This function returns
 # a permuted array.
 #----------------------
