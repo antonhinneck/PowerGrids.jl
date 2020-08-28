@@ -1,13 +1,19 @@
 # Functions to convert the data sets into a JSON string.
 #-------------------------------------------------------
 
-function upload_dataset(pg::PowerGrid, url::String)
+function upload_dataset(ds::_dataset, url::String)
 
-    postBody = JSON.json(_jsonModel(CASE_NAME,
-                                    pg.buses_input,
-                                    pg.generators_input,
-                                    pg.branches_input))
+    postBody = JSON.json(ds)
     HTTP.request("POST", url, ["Content-Type" => "application/json;charset=UTF-8"], postBody, require_ssl_verification = false)
+
+end
+
+function download_dataset(url::String)
+
+end
+
+function remote_datasets()
+
 
 end
 

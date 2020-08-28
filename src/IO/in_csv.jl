@@ -165,7 +165,8 @@ function _csv2dataset()
         push!(ds_buses, bus(bus_df[i, :]...))
     end
 
-    return _dataset(CASE_NAME,
+    return _dataset(0,
+                    CASE_NAME,
                     baseMVA,
                     ds_buses,
                     ds_branches,

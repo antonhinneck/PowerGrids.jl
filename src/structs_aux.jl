@@ -28,6 +28,7 @@ end
 #---
 
 mutable struct _dataset
+    network_id::Int64
     name::String
     baseMVA::Int64
     buses::Vector{B where B <: Bus}

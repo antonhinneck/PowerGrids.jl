@@ -137,7 +137,7 @@ mutable struct extended_generator <: Generator
     startup::S where S<:Number
     shutdown::S where S<:Number
     n::S where S<:Number
-    cMinus1::S where S<:Number
-    test::S where S<:Number
+    c2::S where S<:Number
+    c1::S where S<:Number
     c0::S where S<:Number
 end
