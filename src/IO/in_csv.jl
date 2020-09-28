@@ -1,4 +1,4 @@
-CSV_ROOT_PATH = ""
+CSV_ROOT_PATH = "C:/Users/Anton Hinneck/Documents/Git/pglib2csv/pglib/2020-08-21.19-54-30-275/csv"
 CSV_PATH = nothing
 CASE_DIR = nothing
 CASE_NAME = nothing
@@ -25,6 +25,10 @@ end
 function csv_cases(; verbose = false)
     # This function returns all data
     # set names in the directory CSV_PATH.
+
+    if (CSV_PATH == nothing)
+        set_csv_path(CSV_ROOT_PATH)
+    end
 
     lst = readdir(CSV_PATH)
 
@@ -79,7 +83,10 @@ end
 
 function _csv2dataset()
 
-    @assert CASE_DIR != nothing "A case has not been selected."
+    #@assert CASE_DIR != nothing "A case has not been selected."
+    if (CASE_DIR == nothing)
+        set_csv_path(CSV_ROOT_PATH)
+    end
 
     params_df = CSV.read(string(CASE_DIR,"/params.csv"))
     bus_df = CSV.read(string(CASE_DIR,"/bus.csv"))

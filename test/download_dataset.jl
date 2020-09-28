@@ -1,22 +1,37 @@
 include("C:/Users/Anton Hinneck/juliaPackages/GitHub/PowerGrids.jl/src/PowerGrids.jl")
 using .PowerGrids
 
-using HTTP, JSON, JSON2
-url = "https://localhost/get/dataset?name=pglib_opf_case118_ieee"
+using HTTP, JSON3, StructTypes
+url = "https://localhost/get/dataset?id=54423&apiToken=YK437rJWjoFDVn2MnPgWxWgy"
 response = HTTP.request("GET", url, ["Content-Type" => "application/json;charset=UTF-8"], require_ssl_verification = false)
 #ds_dict = JSON.Parser.parse(String(response.body))
 
-JSON2.@format String(response.body)
-        network_id => (exclude = true,)
-end
-String(response.body)
-ds = JSON2.read(String(response.body), PowerGrids._dataset)
+responseBody = String(response.body)
+
+StructTypes.StructType(::Type{PowerGrids._dataset}) = StructTypes.Struct()
 
 
-a = @pretty String(response.body)
-print(a)
-baseMVA = ds["baseMVA"]
-name = ds["name"]
+parsed = JSON3.read(responseBody, PowerGrids._dataset)
+
+newDs = PowerGrids._dataset(parsed["network_id"],
+                            parsed["name"],
+                            parsed["baseMVA"],
+                            parsed["buses"],
+                            parsed["branches"],
+                            parsed["generators"])
+
+using Parsers, Mmap, UUIDs, Dates, StructTypes
+a = 2
+codeunits("ht")
+a = Vector{Float64}()
+
+a = Int64(0b00000001)
+a << 4
+
+parsed["buses"]
+JSON3.read(parsed["buses"][1])
+
+
 
 buses = Vector{PowerGrids.bus}()
 branches = Vector{PowerGrids.branch}()

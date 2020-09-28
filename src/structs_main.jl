@@ -6,6 +6,7 @@ mutable struct PowerGrid
     # buses_input
     # generators_input
     # branches_input
+    base_mva
     buses
     root_buses
     bus_decomposed
@@ -18,7 +19,9 @@ mutable struct PowerGrid
     generators
     generator_capacity_min
     generator_capacity_max
+    generator_c0
     generator_c1
+    generator_c2
     generators_at_bus
     lines
     line_is_aux

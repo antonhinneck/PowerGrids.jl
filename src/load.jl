@@ -31,6 +31,7 @@ function loadCase(; source = :csv)
     # Bus splitting
     #--------------
     bus_decomposed = Vector{Bool}()
+    root_buses = Vector{Int64}()
     bus_is_root = Vector{Bool}()
     root_bus = Dict{Int64, Int64}()
     bus_type = Dict{Int64, Int64}()
@@ -60,13 +61,17 @@ function loadCase(; source = :csv)
     #---------------------
     generator_capacity_min = Dict{Int64, Float64}()
     generator_capacity_max = Dict{Int64, Float64}()
+    generator_c0 = Dict{Int64, Float64}()
     generator_c1 = Dict{Int64, Float64}()
+    generator_c2 = Dict{Int64, Float64}()
 
     for i in 1:length(generators)
 
         push!(generator_capacity_min, generators[i] => ds.generators[i].Pmin)
         push!(generator_capacity_max, generators[i] => ds.generators[i].Pmax)
+        push!(generator_c0, generators[i] => ds.generators[i].c0)
         push!(generator_c1, generators[i] => ds.generators[i].c1)
+        push!(generator_c2, generators[i] => ds.generators[i].c2)
 
         # Buses - Generators
         #-------------------
@@ -119,6 +124,7 @@ function loadCase(; source = :csv)
 
     dataset = PowerGrid(ds.baseMVA,
                         buses,
+                        root_buses,
                         bus_decomposed,
                         bus_is_root,
                         root_bus,
@@ -129,7 +135,9 @@ function loadCase(; source = :csv)
                         generators,
                         generator_capacity_min,
                         generator_capacity_max,
+                        generator_c0,
                         generator_c1,
+                        generator_c2,
                         generators_at_bus,
                         lines,
                         line_is_aux,
