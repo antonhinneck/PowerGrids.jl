@@ -135,7 +135,7 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
     # Generator: type = 5
     if !pg.bus_decomposed[id]
         sg = sub_grid(id, Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Dict{Int64, Int64}(), Dict{Int64, Dict{Int64, Int64}}())
-        push!(sg.buses, id)
+        #push!(sg.buses, id)
         connectors = Vector{Int64}()
         bus_bars = Vector{Int64}()
         bus_bar_root_line = Dict{Int64, Int64}()
@@ -191,6 +191,7 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
                 lb = addBus!(pg, root = id, type = 4)
                 push!(pg.bus_demand, lb => pg.bus_demand[id])
                 push!(load_buses, lb)
+                push!(sg.buses, lb)
                 pg.bus_demand[id] = 0.0
             end
             # Construct Load - bus bar lines
@@ -207,6 +208,7 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
             for g in pg.generators_at_bus[id]
                 gb = addBus!(pg, root = id, type = 5)
                 push!(gen_buses, gb)
+                push!(sg.buses, gb)
                 push!(pg.generators_at_bus[gb], g)
             end
             pg.generators_at_bus[id] = Vector{Int64}()
