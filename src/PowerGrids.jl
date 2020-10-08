@@ -22,8 +22,8 @@ using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_ed
 #include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
 export set_csv_path, csv_cases, select_csv_case, loadCase,
-       _splitBus!, splitBus!, addBus!, addLine!, newBus!, update_line,
-       split_build_x0
+       __splitBus!, splitBus!, addBus!, addLine!, newBus!, update_line,
+       split_build_x0, dfs_components, reassign_generator!, reassign_demand!, reduce_grid
 
 # cases, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list,
 #         SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!, upload_dataset,

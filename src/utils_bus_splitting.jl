@@ -300,3 +300,267 @@ function split_build_x0(case, otsp_sol = nothing)
 
     return x0
 end
+
+# Construct initial solution with all lines active
+#-------------------------------------------------
+function sol_allActive(case; select = :first)
+
+    sol = zeros(length(case.lines))
+
+    @inline function _set_line_as_active(bus::Int64)
+        if select == :static
+            for l in case.lines_at_bus[bus]
+                if case.line_is_aux[l]
+                    sol[l] = 1.0
+                    break
+                end
+            end
+        end
+    end
+
+    for sg in case.sub_grids
+        # Set bus bar - connector lines
+        #------------------------------
+        for cb in sg.con_buses
+            _set_line_as_active(cb)
+        end
+
+        # Set bus bar - load bus lines
+        #-----------------------------
+        for lb in sg.load_buses
+            _set_line_as_active(lb)
+        end
+
+        # Set bus bar - gen bus lines
+        #----------------------------
+        for gb in sg.gen_buses
+            _set_line_as_active(gb)
+        end
+    end
+
+    return sol
+end
+
+# Construct OBSP solution from OTSP solution
+#-------------------------------------------
+function sol_otsp2obsp(case, sol_otsp::Array{T, 1} where T <: Real; select = :first)
+
+    sol = zeros(length(case.lines))
+
+    @inline function _set_line_as_active(bus::Int64, bus_bar::Int64)
+        if select == :first
+            for l in case.lines_at_bus[bus]
+                if case.line_is_aux[l] && (case.line_end[l] == bus_bar || case.line_start[l] == bus_bar)
+                    sol[l] = 1.0
+                    break
+                end
+            end
+        end
+    end
+
+    for sg in case.sub_grids
+
+        @assert length(sg.bus_bars) > 0 "At least one bus bar must exist in the substation model."
+        bus_bar = sg.bus_bars[1]
+
+        # Set bus bar - con lines
+        #------------------------
+        for (i, cb) in enumerate(sg.con_buses)
+            if sol_otsp[sg.externalLines[i]] == 1.0
+                _set_line_as_active(cb, bus_bar)
+            end
+        end
+
+        # Set bus bar - load bus lines
+        #-----------------------------
+        for lb in sg.load_buses
+            _set_line_as_active(lb, bus_bar)
+        end
+
+        # Set bus bar - gen bus lines
+        #----------------------------
+        for gb in sg.gen_buses
+            _set_line_as_active(gb, bus_bar)
+        end
+    end
+
+    return sol
+end
+
+function dfs_components(pg::PowerGrids.PowerGrid, sg::PowerGrids.sub_grid; l_stat = nothing) # TODO: op_status
+
+    visited = fill(false, length(sg.buses))
+    visited_lines = Vector{Int64}()
+    all_visited = false
+    components = Vector{PowerGrids.sub_grid}()
+    connected_buses = [sg.root_bus]
+    iter = 0
+
+    @inline function _transfer_bus!(sg, _sg, b::Int64)
+    # This function writes type-specific bus information into a new sub grid.
+
+        # Regular bus: type = 1
+        # Bus bar: type = 2
+        # Connector: type = 3
+        # Load: type = 4
+        # Generator: type = 5
+        type = convert(Int64, 0)
+        if b in Set(sg.bus_bars)
+            type = convert(Int64, 2)
+            push!(_sg.bus_bars, b)
+        elseif b in Set(sg.con_buses)
+            type = convert(Int64, 3)
+            push!(_sg.con_buses, b)
+        elseif b in Set(sg.load_buses)
+            type = convert(Int64, 4)
+            push!(_sg.load_buses, b)
+        elseif b in Set(sg.gen_buses)
+            type = convert(Int64, 5)
+            push!(_sg.gen_buses, b)
+        else
+            throw(ErrorException("Bus type undetermined."))
+        end
+
+        push!(_sg.buses, b)
+
+        return type
+    end
+
+    while !all_visited #&& iter < 3
+
+        for i in 1:length(visited)
+            if !visited[i]
+                connected_buses = [sg.buses[i]]
+                break
+            end
+        end
+
+        _sg = PowerGrids.sub_grid(sg.root_bus, Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Dict{Int64, Int64}(), Dict{Int64, Dict{Int64, Int64}}())
+
+        while length(connected_buses) > 0
+
+            new_buses = Vector{Int64}()
+            for b in connected_buses
+                _transfer_bus!(sg, _sg, b)
+                for l in pg.lines_at_bus[b]
+                    if l in Set(sg.lines) && !(l in Set(visited_lines)) && round(l_stat[l]) == 1.0
+                        #if !(l in Set(visited_lines))
+                        if pg.line_start[l] == b
+                            push!(new_buses, pg.line_end[l])
+                        else
+                            push!(new_buses, pg.line_start[l])
+                        end
+                        push!(_sg.lines, l)
+                        push!(visited_lines, l)
+                        #end
+                    end
+                end
+            end
+
+            for (i, b) in enumerate(sg.buses)
+                if b in Set(connected_buses)
+                    visited[i] = true
+                end
+            end
+            connected_buses = deepcopy(new_buses)
+        end
+
+        all_visited = true
+        for v in visited
+            if !v
+                all_visited = false
+                break
+            end
+        end
+        iter += 1
+        #push!(components, _sg)
+        single_connector = false
+        if length(_sg.buses) == 1
+            if (pg.bus_type[_sg.buses[1]] == 3)
+                single_connector = true
+            end
+        end
+
+        if length(_sg.buses) > 1 || single_connector
+            push!(components, _sg)
+        end
+    end
+
+    return components
+end
+
+function reassign_generator!(case, gen, src, target)
+
+    @assert gen in Set(case.generators) "Generator does not exist."
+    @assert gen in Set(case.generators_at_bus[src]) "Generator is not assigned to src."
+
+    idx = indexin(gen, case.generators_at_bus[src])[]
+    deleteat!(case.generators_at_bus[src], idx)
+
+    push!(case.generators_at_bus[target], gen)
+end
+
+function reassign_demand!(case, src, target)
+
+    @assert case.bus_demand[target] == 0.0 "Demand at target bus is unequal 0."
+    case.bus_demand[target] = case.bus_demand[src]
+    case.bus_demand[src] = 0.0
+end
+
+function reduce_grid(pg::PowerGrids.PowerGrid, pg_id::Int64, l_stat)
+
+    PowerGrids.select_csv_case(pg_id)
+    reset_case = PowerGrids.loadCase()
+    #println(reset_case.buses)
+
+    if pg.sub_grids != nothing
+        for sg in pg.sub_grids
+            components = dfs_components(pg, sg, l_stat = l_stat)
+
+            for (i,c) in enumerate(components)
+
+                if i > 1
+
+                    connected_lines = Vector{Int64}()
+
+                    for b in c.buses
+                        for l in pg.lines_at_bus[b]
+                            if l in Set(reset_case.lines)
+                                push!(connected_lines, l)
+                            end
+                        end
+                    end
+
+                    nbid = newBus!(reset_case)
+                    obid = c.root_bus
+
+                    # Redirect lines
+                    for l in connected_lines
+                        if reset_case.line_start[l] == obid
+                            update_line(reset_case, l, nbid, pg.line_end[l])
+                        elseif reset_case.line_end[l] == obid
+                            update_line(reset_case, l, pg.line_start[l], nbid, update_fbus = false)
+                        else
+                            print("Line has no matching start or end.")
+                        end
+                    end
+
+                    # Reassign generators
+                    for gb in c.gen_buses
+                        reassign_generator!(reset_case, pg.generators_at_bus[gb][], c.root_bus, nbid)
+                    end
+
+                    # Reassign loads
+                    if length(c.load_buses) != 0
+                        reassign_demand!(reset_case, c.root_bus, nbid)
+                    end
+                end
+
+            end
+        end
+    else
+        print("This function can only be applied after splitBus! has been called.")
+    end
+
+    return reset_case
+end
