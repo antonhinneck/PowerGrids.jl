@@ -33,6 +33,7 @@ mutable struct PowerGrid
     lines_at_bus
     lines_start_at_bus
     lines_end_at_bus
+    bus_id
     bus_demand
     sub_grids
 end

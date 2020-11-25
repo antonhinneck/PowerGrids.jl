@@ -133,6 +133,11 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
     # Connector: type = 3
     # Load: type = 4
     # Generator: type = 5
+    proxy = false
+    if n_bus_bars == 1
+        proxy = true
+    end
+
     if !pg.bus_decomposed[id]
         sg = sub_grid(id, Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Vector{Int64}(), Dict{Int64, Int64}(), Dict{Int64, Dict{Int64, Int64}}())
         #push!(sg.buses, id)
@@ -176,7 +181,7 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
             for bb in bus_bars
                 internalLine = Dict{Int64, Int64}()
                 for con in connectors
-                    line_id = addLine!(pg, bb, con, is_aux = true, is_proxy = true)
+                    line_id = addLine!(pg, bb, con, is_aux = true)
                     push!(internalLine, external_line_by_connector[con] => line_id)
                     push!(sg.lines, line_id)
                 end
@@ -194,10 +199,11 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
                 push!(sg.buses, lb)
                 pg.bus_demand[id] = 0.0
             end
+
             # Construct Load - bus bar lines
             if load_exists
                 for bb in bus_bars
-                    line_id = addLine!(pg, lb, bb, is_aux = true, is_proxy = true)
+                    line_id = addLine!(pg, lb, bb, is_aux = true, is_proxy = proxy)
                     #push!(bus_bar_root_line, bb => line_id)
                     push!(sg.lines, line_id)
                 end
@@ -216,7 +222,7 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
             if length(gen_buses) != 0
                 for bb in bus_bars
                     for gb in gen_buses
-                        line_id = addLine!(pg, gb, bb, is_aux = true, is_proxy = true)
+                        line_id = addLine!(pg, gb, bb, is_aux = true, is_proxy = proxy)
                         #push!(bus_bar_root_line, bb => line_id)
                         push!(sg.lines, line_id)
                     end
@@ -308,7 +314,7 @@ function sol_allActive(case; select = :first)
     sol = zeros(length(case.lines))
 
     @inline function _set_line_as_active(bus::Int64)
-        if select == :static
+        if select == :first
             for l in case.lines_at_bus[bus]
                 if case.line_is_aux[l]
                     sol[l] = 1.0

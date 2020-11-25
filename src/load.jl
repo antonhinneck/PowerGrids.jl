@@ -40,6 +40,7 @@ function loadCase(; source = :csv)
     for i in 1:length(ds.buses)
 
         push!(bus_id, ds.buses[i].bus_i => i)
+        #push!(bus_idRev, Int64(i) => ds.buses[i].bus_i)
         push!(bus_demand, buses[i] => ds.buses[i].Pd)
 
         push!(generators_at_bus, buses[i] => Vector{Int64}())
@@ -149,6 +150,7 @@ function loadCase(; source = :csv)
                         lines_at_bus,
                         lines_start_at_bus,
                         lines_end_at_bus,
+                        bus_id,
                         bus_demand,
                         nothing)
 
