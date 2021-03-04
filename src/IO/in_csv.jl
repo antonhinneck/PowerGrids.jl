@@ -88,11 +88,11 @@ function _csv2dataset()
         set_csv_path(CSV_ROOT_PATH)
     end
 
-    params_df = CSV.read(string(CASE_DIR,"/params.csv"))
-    bus_df = CSV.read(string(CASE_DIR,"/bus.csv"))
-    gen_df = CSV.read(string(CASE_DIR,"/gen.csv"))
-    gencost_df = CSV.read(string(CASE_DIR,"/gencost.csv"))
-    branch_df = CSV.read(string(CASE_DIR,"/branch.csv"))
+    params_df = CSV.read(string(CASE_DIR,"/params.csv"), DataFrame)
+    bus_df = CSV.read(string(CASE_DIR,"/bus.csv"), DataFrame)
+    gen_df = CSV.read(string(CASE_DIR,"/gen.csv"), DataFrame)
+    gencost_df = CSV.read(string(CASE_DIR,"/gencost.csv"), DataFrame)
+    branch_df = CSV.read(string(CASE_DIR,"/branch.csv"), DataFrame)
 
     baseMVA = params_df[1, 2]
 
