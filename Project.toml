@@ -1,0 +1,15 @@
+name = "PowerGrids"
+uuid = "b1ab223a-a2a7-4fe4-a366-78b17df11918"
+repo = "https://github.com/antonhinneck/PowerGrids.jl.git"
+author = [Anton Hinneck <anton.hinneck@skoltech.ru>]
+version = "1.0.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
+
+[compat]
+julia = "1"

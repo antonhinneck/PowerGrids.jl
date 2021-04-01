@@ -16,7 +16,7 @@
 
 module PowerGrids
 
-using Pkg
+#using Pkg
 using DataFrames, CSV, JSON, HTTP
 using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_edge!
 #include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
