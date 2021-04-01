@@ -1,4 +1,4 @@
-CSV_ROOT_PATH = "C:/Users/Anton Hinneck/Documents/Git/pglib2csv/pglib/2020-08-21.19-54-30-275/csv"
+CSV_ROOT_PATH = nothing
 CSV_PATH = nothing
 CASE_DIR = nothing
 CASE_NAME = nothing
