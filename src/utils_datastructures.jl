@@ -1,9 +1,48 @@
+function param_vec_c2(pg::T where T <: PowerGrid; normalized = false)
+    # Returns quadratic costs of generator g.
+    _vec_c2 = zeros(size(pg.generators, 1))
+    for i in 1:size(pg.generators, 1)
+        try
+            _vec_c2[i] = pg.generator_c2[i]
+        catch ex
+            _vec_c2[i] = 0
+        end
+    end
+    return _vec_c2
+end
+
+function param_vec_c1(pg::T where T <: PowerGrid; normalized = false)
+    # Returns linear costs of generator g.
+    _vec_c1 = zeros(size(pg.generators, 1))
+    for i in 1:size(pg.generators, 1)
+        try
+            _vec_c1[i] = pg.generator_c1[i]
+        catch ex
+            _vec_c1[i] = 0
+        end
+    end
+    return _vec_c1
+end
+
+function param_vec_c0(pg::T where T <: PowerGrid; normalized = false)
+    # Returns vector of maximal line capacity.
+    _vec_c0 = zeros(size(pg.generators, 1))
+    for i in 1:size(pg.generators, 1)
+        try
+            _vec_c0[i] = pg.generator_c0[i]
+        catch ex
+            _vec_c0[i] = 0
+        end
+    end
+    return _vec_c0
+end
+
 function param_vec_fmax(pg::T where T <: PowerGrid; normalized = false)
     # Returns vector of maximal line capacity.
     _vec_fmax = zeros(size(pg.lines, 1))
     for i in 1:size(pg.lines, 1)
         try
-            _vec_fmax[i] = pg.line_capacity_max[i]
+            _vec_fmax[i] = pg.line_capacity[i]
         catch ex
             _vec_fmax[i] = 0
         end
@@ -16,9 +55,9 @@ function param_vec_x(pg::T where T <: PowerGrid)
     _vec_x = zeros(size(pg.lines, 1))
     for i in 1:size(pg.lines, 1)
         try
-            _vec_Pmax[i] = pg.line_reactance[i]
+            _vec_x[i] = pg.line_reactance[i]
         catch ex
-            _vec_Pmax[i] = 0
+            _vec_x[i] = 0
         end
     end
     return _vec_x
