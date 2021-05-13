@@ -25,6 +25,7 @@ end
 function csv_cases(; verbose = false)
     # This function returns all data
     # set names in the directory CSV_PATH.
+    @assert CSV_ROOT_PATH != nothing "No data directory defined. Call set_csv_path(...) first."
 
     if (CSV_PATH == nothing)
         set_csv_path(CSV_ROOT_PATH)
@@ -61,6 +62,8 @@ end
 
 function select_csv_case(id::T where T <: Integer; verbose = false)
     # Function locks a data directory for further use.
+    @assert CSV_ROOT_PATH != nothing "No data directory defined. Call set_csv_path(...) first."
+
     lst = csv_cases(verbose = verbose)
     println(string("Case ",lst[id]," selected."))
     global CASE_DIR = string(CSV_PATH,"/",lst[id])
@@ -69,6 +72,8 @@ end
 
 function select_csv_case(id::T where T <: String; verbose = false)
     # Function locks a data directory for further use.
+    @assert CSV_ROOT_PATH != nothing "No data directory defined. Call set_csv_path(...) first."
+
     lst = csv_cases(verbose = verbose)
     for i in 1:length(lst)
         if lst[i] == id
@@ -84,6 +89,8 @@ end
 function _csv2dataset()
 
     #@assert CASE_DIR != nothing "A case has not been selected."
+    @assert CSV_ROOT_PATH != nothing "No data directory defined. Call set_csv_path(...) first."
+
     if (CASE_DIR == nothing)
         set_csv_path(CSV_ROOT_PATH)
     end
