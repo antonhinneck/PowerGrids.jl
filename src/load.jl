@@ -62,6 +62,7 @@ function loadCase(; source = :csv)
     #---------------------
     generator_capacity_min = Dict{Int64, Float64}()
     generator_capacity_max = Dict{Int64, Float64}()
+    generator_bus_id = Dict{Int64, Int64}()
     generator_c0 = Dict{Int64, Float64}()
     generator_c1 = Dict{Int64, Float64}()
     generator_c2 = Dict{Int64, Float64}()
@@ -70,6 +71,7 @@ function loadCase(; source = :csv)
 
         push!(generator_capacity_min, generators[i] => ds.generators[i].Pmin)
         push!(generator_capacity_max, generators[i] => ds.generators[i].Pmax)
+        push!(generator_bus_id, generators[i] => ds.generators[i].bus_i)
         push!(generator_c0, generators[i] => ds.generators[i].c0)
         push!(generator_c1, generators[i] => ds.generators[i].c1)
         push!(generator_c2, generators[i] => ds.generators[i].c2)
@@ -139,6 +141,7 @@ function loadCase(; source = :csv)
                         generator_c0,
                         generator_c1,
                         generator_c2,
+                        generator_bus_id,
                         generators_at_bus,
                         lines,
                         line_is_aux,

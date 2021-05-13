@@ -22,6 +22,7 @@ mutable struct PowerGrid
     generator_c0
     generator_c1
     generator_c2
+    generator_bus_id
     generators_at_bus
     lines
     line_is_aux

@@ -1,10 +1,19 @@
+function param_mat_P(pg::T where T <: PowerGrid)
+    # Returns quadratic costs of generator g.
+    _mat_P = zeros(size(pg.buses, 1), size(pg.generators, 1))
+    for i in pg.generators
+        _mat_P[pg.generator_bus_id[i], i] = 1
+    end
+    return _mat_P
+end
+
 function param_mat_c2_rt(pg::T where T <: PowerGrid)
     # Returns quadratic costs of generator g.
     _mat_c2_rt = zeros(size(pg.generators, 1), size(pg.generators, 1))
     for i in pg.generators
-        _mat_c2_rt[i] = pg.generator_c2[i]
+        _mat_c2_rt[i, i] = pg.generator_c2[i]^2
     end
-    return _vec_c2
+    return _mat_c2_rt
 end
 
 function param_vec_c2(pg::T where T <: PowerGrid)
