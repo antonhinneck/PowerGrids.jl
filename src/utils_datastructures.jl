@@ -3,8 +3,8 @@ function param_mat_A(pg::T where T <: PowerGrid)
     # starts and -1 if line e ends at node v.
     _mat_A = zeros(size(pg.lines, 1), size(pg.buses, 1))
     for i in 1:size(pg.lines, 1)
-        _mat_A[i, pg.line_start[i]]
-        _mat_A[i, pg.line_end[i]]
+        _mat_A[i, pg.line_start[i]] = 1
+        _mat_A[i, pg.line_end[i]] = -1
     end
     return _mat_A
 end
