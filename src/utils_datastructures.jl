@@ -1,3 +1,29 @@
+function param_vec_fmax(pg::T where T <: PowerGrid; normalized = false)
+    # Returns vector of maximal line capacity.
+    _vec_fmax = zeros(size(pg.lines, 1))
+    for i in 1:size(pg.lines, 1)
+        try
+            _vec_fmax[i] = pg.line_capacity_max[i]
+        catch ex
+            _vec_fmax[i] = 0
+        end
+    end
+    return _vec_fmax
+end
+
+function param_vec_x(pg::T where T <: PowerGrid)
+    # Returns vector of line reactances.
+    _vec_x = zeros(size(pg.lines, 1))
+    for i in 1:size(pg.lines, 1)
+        try
+            _vec_Pmax[i] = pg.line_reactance[i]
+        catch ex
+            _vec_Pmax[i] = 0
+        end
+    end
+    return _vec_x
+end
+
 function param_vec_Pmax(pg::T where T <: PowerGrid; normalized = false)
     # Returns vector of bus loads.
     _vec_Pmax = zeros(size(pg.generators, 1))
