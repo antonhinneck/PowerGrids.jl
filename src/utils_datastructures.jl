@@ -74,7 +74,7 @@ function param_mat_A(pg::T where T <: PowerGrid; _feas_check = false)
             end
         end
     end
-    @assert feas == true "Rows do not sum to 1."
+    @assert _feas == true "Rows do not sum to 1."
     return _mat_A
 end
 
