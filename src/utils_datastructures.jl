@@ -14,7 +14,7 @@ function param_mat_X(pg::T where T <: PowerGrid)
     # of every line in pg on its diagonal.
     _mat_X = zeros(size(pg.lines, 1), size(pg.lines, 1))
     for i in 1:size(pg.lines, 1)
-        _mat_X[i, i] = pg.line_reactance[i]
+        _mat_X[i, i] = 1 / pg.line_reactance[i]
     end
     return _mat_X
 end
