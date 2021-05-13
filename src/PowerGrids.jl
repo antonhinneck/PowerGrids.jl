@@ -23,7 +23,8 @@ using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_ed
 
 export set_csv_path, csv_cases, select_csv_case, loadCase,
        __splitBus!, splitBus!, addBus!, addLine!, newBus!, update_line,
-       split_build_x0, dfs_components, reassign_generator!, reassign_demand!, reduce_grid
+       split_build_x0, dfs_components, reassign_generator!, reassign_demand!, reduce_grid,
+       param_mat_A, param_mat_B
 
 # cases, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list,
 #         SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!, upload_dataset,
@@ -40,6 +41,8 @@ include("./load.jl")
 
 include("./utils_change_network.jl")
 include("./utils_bus_splitting.jl")
+
+include("./utils_datastructures.jl")
 
 #include("./graph_functions.jl")
 #include("./IO/io_graph.jl")
