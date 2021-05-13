@@ -14,7 +14,7 @@ function param_mat_B(pg::T where T <: PowerGrid)
     # of every line in pg on its diagonal.
     _mat_B = zeros(size(pg.lines, 1), size(pg.lines, 1))
     for i in 1:size(pg.lines, 1)
-        _mat_B[i, i] = pg.line_resistance[i]
+        _mat_B[i, i] = pg.line_reactance[i]
     end
     return _mat_B
 end
