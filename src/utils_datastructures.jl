@@ -65,6 +65,9 @@ function param_vec_fmax(pg::T where T <: PowerGrid; normalized = false)
             _vec_fmax[i] = 0
         end
     end
+    if normalized
+        _vec_fmax /= pg.base_mva
+    end
     return _vec_fmax
 end
 
