@@ -127,7 +127,7 @@ function _splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
     end
 end
 
-function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
+function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2; smart = false)
     # Regular bus: type = 1
     # Bus bar: type = 2
     # Connector: type = 3
@@ -136,6 +136,22 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2)
     proxy = false
     if n_bus_bars == 1
         proxy = true
+    end
+
+    if smart
+        nWE = length(pg.lines_at_bus[id])
+        nGE = length(pg.generators_at_bus[id])
+        if pg.bus_demand[id] > 0.0
+            nGd = 1
+        else
+            nGd = 0
+        end
+        nWB = min(nWE, Int64(floor((nWE + nGE + nGd) / 2)))
+        if nWE = 1
+            n_bus_bars = 0
+        else
+            n_bus_bars = nWB
+        end
     end
 
     if !pg.bus_decomposed[id]
