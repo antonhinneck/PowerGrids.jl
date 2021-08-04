@@ -17,8 +17,10 @@ mutable struct PowerGrid
     vertex_edge_matrix
     adjacent_nodes
     generators
-    generator_capacity_min
-    generator_capacity_max
+    generator_Pmin
+    generator_Pmax
+    generator_Qmin
+    generator_Qmax
     generator_c0
     generator_c1
     generator_c2
@@ -30,12 +32,17 @@ mutable struct PowerGrid
     line_start
     line_end
     line_capacity
-    line_reactance
+    line_r
+    line_x
+    line_b
     lines_at_bus
     lines_start_at_bus
     lines_end_at_bus
     bus_id
-    bus_demand
+    bus_Pd
+    bus_Qd
+    bus_Vmin
+    bus_Vmax
     sub_grids
 end
 

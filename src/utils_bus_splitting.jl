@@ -148,14 +148,15 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2; smart = fa
     if smart
         nWE = length(pg.lines_at_bus[id])
         nGE = length(pg.generators_at_bus[id])
-        if pg.bus_demand[id] > 0.0
+        if pg.bus_Pd[id] > 0.0
             nGd = 1
         else
             nGd = 0
         end
-        nWB = min(nWE, Int64(floor((nWE + nGE + nGd) / 2)))
-        if nWE == 1
+        nWB = min(nWE, Int64(floor((nWE + nGE + nGd) / 2)), n_bus_bars)
+        if nWE <= 1
             expand = false
+            println(nWE)
         else
             n_bus_bars = nWB
         end
@@ -215,13 +216,13 @@ function __splitBus!(pg::PowerGrid, id::Int64, n_bus_bars::Int64 = 2; smart = fa
                 # Construct load
                 load_buses = Vector{Int64}()
                 load_exists = false
-                if pg.bus_demand[id] > 0.0
+                if pg.bus_Pd[id] > 0.0
                     load_exists = true
                     lb = addBus!(pg, root = id, type = 4)
-                    push!(pg.bus_demand, lb => pg.bus_demand[id])
+                    push!(pg.bus_Pd, lb => pg.bus_Pd[id])
                     push!(load_buses, lb)
                     push!(sg.buses, lb)
-                    pg.bus_demand[id] = 0.0
+                    pg.bus_Pd[id] = 0.0
                 end
 
                 # Construct Load - bus bar lines
@@ -535,9 +536,9 @@ end
 
 function reassign_demand!(case, src, target)
 
-    @assert case.bus_demand[target] == 0.0 "Demand at target bus is unequal 0."
-    case.bus_demand[target] = case.bus_demand[src]
-    case.bus_demand[src] = 0.0
+    @assert case.bus_Pd[target] == 0.0 "Demand at target bus is unequal 0."
+    case.bus_Pd[target] = case.bus_Pd[src]
+    case.bus_Pd[src] = 0.0
 end
 
 function reduce_grid(pg::PowerGrids.PowerGrid, pg_id::Int64, l_stat)

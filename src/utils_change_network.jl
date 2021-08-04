@@ -4,7 +4,7 @@ function addBus!(pg::PowerGrid; demand = 0.0, root = 0, type = 1, is_aux = true)
     id = pg.buses[nb] + 1
     push!(pg.buses, id)
     push!(pg.bus_decomposed, true)
-    push!(pg.bus_demand, id => demand)
+    push!(pg.bus_Pd, id => demand)
     push!(pg.bus_is_root, false)
 
     push!(pg.lines_at_bus, id => Vector{Int64}())
@@ -38,7 +38,7 @@ function newBus!(pg::PowerGrid; demand = 0.0, root = 0)
     return id
 end
 
-function addLine!(pg::PowerGrid, tbus, fbus; is_aux = false, is_proxy = false, reactance = 10e-4, capacity = 5000.0)
+function addLine!(pg::PowerGrid, tbus, fbus; is_aux = false, is_proxy = false, x = 10e-4, capacity = 5000.0)
     nl = length(pg.lines)
     id = nl + 1
     push!(pg.lines, id)
@@ -51,7 +51,7 @@ function addLine!(pg::PowerGrid, tbus, fbus; is_aux = false, is_proxy = false, r
     push!(pg.line_end, id => fbus)
     push!(pg.lines_end_at_bus[fbus], id)
     push!(pg.line_capacity, id => capacity)
-    push!(pg.line_reactance, id => reactance)
+    push!(pg.line_x, id => x)
     return id
 end
 

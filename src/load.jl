@@ -16,7 +16,10 @@ function loadCase(; source = :csv)
     # Bus properties
     #---------------
     bus_id = Dict{Int64, Int64}()
-    bus_demand = Dict{Int64, Float64}()
+    bus_Pd = Dict{Int64, Float64}()
+    bus_Qd = Dict{Int64, Float64}()
+    bus_Vmin = Dict{Int64, Float64}()
+    bus_Vmax = Dict{Int64, Float64}()
 
     # Buses - Generators
     #-------------------
@@ -41,7 +44,10 @@ function loadCase(; source = :csv)
 
         push!(bus_id, ds.buses[i].bus_i => i)
         #push!(bus_idRev, Int64(i) => ds.buses[i].bus_i)
-        push!(bus_demand, buses[i] => ds.buses[i].Pd)
+        push!(bus_Pd, buses[i] => ds.buses[i].Pd)
+        push!(bus_Qd, buses[i] => ds.buses[i].Qd)
+        push!(bus_Vmin, buses[i] => ds.buses[i].Vmin)
+        push!(bus_Vmax, buses[i] => ds.buses[i].Vmax)
 
         push!(generators_at_bus, buses[i] => Vector{Int64}())
 
@@ -60,21 +66,27 @@ function loadCase(; source = :csv)
 
     # Generator properties
     #---------------------
-    generator_capacity_min = Dict{Int64, Float64}()
-    generator_capacity_max = Dict{Int64, Float64}()
+    generator_Pmin = Dict{Int64, Float64}()
+    generator_Pmax = Dict{Int64, Float64}()
     generator_bus_id = Dict{Int64, Int64}()
     generator_c0 = Dict{Int64, Float64}()
     generator_c1 = Dict{Int64, Float64}()
     generator_c2 = Dict{Int64, Float64}()
+    generator_Qmin = Dict{Int64, Float64}()
+    generator_Qmax = Dict{Int64, Float64}()
 
     for i in 1:length(generators)
 
-        push!(generator_capacity_min, generators[i] => ds.generators[i].Pmin)
-        push!(generator_capacity_max, generators[i] => ds.generators[i].Pmax)
+        push!(generator_Pmin, generators[i] => ds.generators[i].Pmin)
+        push!(generator_Pmax, generators[i] => ds.generators[i].Pmax)
+        push!(generator_Qmin, generators[i] => ds.generators[i].Qmin)
+        push!(generator_Qmax, generators[i] => ds.generators[i].Qmax)
         push!(generator_bus_id, generators[i] => ds.generators[i].bus_i)
         push!(generator_c0, generators[i] => ds.generators[i].c0)
         push!(generator_c1, generators[i] => ds.generators[i].c1)
         push!(generator_c2, generators[i] => ds.generators[i].c2)
+        push!(generator_Qmin, generators[i] => ds.generators[i].Qmin)
+        push!(generator_Qmax, generators[i] => ds.generators[i].Qmax)
 
         # Buses - Generators
         #-------------------
@@ -86,7 +98,9 @@ function loadCase(; source = :csv)
     line_start = Dict{Int64, Int64}()
     line_end = Dict{Int64, Int64}()
     line_capacity = Dict{Int64, Float64}()
-    line_reactance = Dict{Int64, Float64}()
+    line_r = Dict{Int64, Float64}()
+    line_x = Dict{Int64, Float64}()
+    line_b = Dict{Int64, Float64}()
     line_is_aux = Dict{Int64, Bool}()
     line_is_proxy = Dict{Int64, Bool}()
 
@@ -94,7 +108,9 @@ function loadCase(; source = :csv)
 
         push!(line_start, i => ds.branches[i].fbus)
         push!(line_end,  i => ds.branches[i].tbus)
-        push!(line_reactance, i => ds.branches[i].x)
+        push!(line_r, i => ds.branches[i].r)
+        push!(line_x, i => ds.branches[i].x)
+        push!(line_b, i => ds.branches[i].b)
         push!(line_capacity, i => ds.branches[i].rateA)
 
         # Bus - Lines
@@ -136,8 +152,10 @@ function loadCase(; source = :csv)
                         vertex_edge_matrix,
                         adjacent_nodes,
                         generators,
-                        generator_capacity_min,
-                        generator_capacity_max,
+                        generator_Pmin,
+                        generator_Pmax,
+                        generator_Qmin,
+                        generator_Qmax,
                         generator_c0,
                         generator_c1,
                         generator_c2,
@@ -149,12 +167,17 @@ function loadCase(; source = :csv)
                         line_start,
                         line_end,
                         line_capacity,
-                        line_reactance,
+                        line_r,
+                        line_x,
+                        line_b,
                         lines_at_bus,
                         lines_start_at_bus,
                         lines_end_at_bus,
                         bus_id,
-                        bus_demand,
+                        bus_Pd,
+                        bus_Qd,
+                        bus_Vmin,
+                        bus_Vmax,
                         nothing)
 
     return dataset
