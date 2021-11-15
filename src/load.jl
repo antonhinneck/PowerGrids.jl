@@ -95,6 +95,7 @@ function loadCase(; source = :csv)
     end
 
     lines = [i for i in 1:length(ds.branches)]
+    line_id = Dict{Int64, Int64}()
     line_start = Dict{Int64, Int64}()
     line_end = Dict{Int64, Int64}()
     line_capacity = Dict{Int64, Float64}()
@@ -106,6 +107,7 @@ function loadCase(; source = :csv)
 
     for i in 1:length(lines)
 
+        push!(line_id, i => i)
         push!(line_start, i => ds.branches[i].fbus)
         push!(line_end,  i => ds.branches[i].tbus)
         push!(line_r, i => ds.branches[i].r)
@@ -178,7 +180,8 @@ function loadCase(; source = :csv)
                         bus_Qd,
                         bus_Vmin,
                         bus_Vmax,
-                        nothing)
+                        nothing,
+                        line_id)
 
     return dataset
 end

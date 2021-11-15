@@ -44,6 +44,7 @@ mutable struct PowerGrid
     bus_Vmin
     bus_Vmax
     sub_grids
+    line_id
 end
 
 mutable struct sub_grid

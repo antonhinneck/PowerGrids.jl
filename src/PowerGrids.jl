@@ -12,13 +12,18 @@ module PowerGrids
 #using Pkg
 using DataFrames, CSV, JSON, HTTP
 using LightGraphs: ne, nv, AbstractSimpleGraph, SimpleGraph, add_vertex!, add_edge!
+using LinearAlgebra: inv, diagm, diag
+using JuMP: Model, value, dual
+
 #include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 
 export set_csv_path, csv_cases, select_csv_case, loadCase,
        __splitBus!, splitBus!, addBus!, addLine!, newBus!, update_line,
        split_build_x0, dfs_components, reassign_generator!, reassign_demand!, reduce_grid,
        param_mat_A, param_mat_B, param_vec_d, param_vec_x, param_vec_fmax, param_vec_Pmax,
-       param_vec_c0, param_vec_c1, param_vec_c2, param_mat_c2_rt, param_mat_P, toGraph, sol_allActive
+       param_vec_c0, param_vec_c1, param_vec_c2, param_mat_c2_rt, param_mat_P, param_mat_X,
+       toGraph, sol_allActive, param_mat_A_alt, param_mat_B_alt, param_mat_X_alt, param_mat_ptdf,
+       rm_update_line_id, remove_line!, get_sensitivities_lpsc, get_sensitivities_pdsc, get_sensitivities_tcdsc, get_sensitivities_pwsc
 
 # cases, readDataset, toGraph, AnnotatedSimpleGraph, paton, adjacency_list,
 #         SpanningTreeToIndicators, rndPermute, rmLines!, solutionToLineIndicators!, upload_dataset,
@@ -33,6 +38,7 @@ include("./IO/in_csv.jl")
 
 include("./load.jl")
 
+include("./utils.jl")
 include("./utils_change_network.jl")
 include("./utils_bus_splitting.jl")
 

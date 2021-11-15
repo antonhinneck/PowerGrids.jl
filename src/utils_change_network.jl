@@ -180,3 +180,23 @@ function update_line(pg::PowerGrids.PowerGrid, line_id, fbus, tbus; update_fbus 
 
     end
 end
+
+function remove_line!(pg::PowerGrids.PowerGrid, line_id)
+    idx = getidx(pg.lines, line_id)
+    deleteat!(pg.lines, idx)
+    for i in pg.buses
+        _idx1 = getidx(pg.lines_at_bus[i], line_id)
+        _idx2 = getidx(pg.lines_start_at_bus[i], line_id)
+        _idx3 = getidx(pg.lines_end_at_bus[i], line_id)
+        if _idx1 != -1
+            deleteat!(pg.lines_at_bus[i], _idx1)
+        end
+        if _idx2 != -1
+            deleteat!(pg.lines_start_at_bus[i], _idx2)
+        end
+        if _idx3 != -1
+            deleteat!(pg.lines_end_at_bus[i], _idx3)
+        end
+    end
+    rm_update_line_id(pg)
+end
