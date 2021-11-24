@@ -7,6 +7,7 @@ mutable struct PowerGrid
     # generators_input
     # branches_input
     base_mva
+    name
     buses
     root_buses
     bus_decomposed

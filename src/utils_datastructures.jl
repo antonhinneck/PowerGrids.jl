@@ -149,8 +149,8 @@ function param_mat_A(pg::T where T <: PowerGrid; _feas_check = false, line_statu
     _mat_A = zeros(size(pg.lines, 1), size(pg.buses, 1))
     for i in 1:size(pg.lines, 1)
         if line_statuses[i] == 1.0
-            _mat_A[i, pg.line_start[i]] = 1
-            _mat_A[i, pg.line_end[i]] = -1
+            _mat_A[i, pg.bus_id[pg.line_start[i]]] = 1
+            _mat_A[i, pg.bus_id[pg.line_end[i]]] = -1
         end
     end
     # Check feasibility of matrix, rows should sum to 0.
@@ -175,10 +175,10 @@ function param_mat_A_alt(pg::T where T <: PowerGrids.PowerGrid, A)
     _radial_lines = _line_is_radial(pg, A)
     for l in _radial_lines
         if l == 1.0
-            if pg.lines_at_bus[pg.line_start[l]] == 1 && pg.lines_at_bus[pg.line_end[l]] > 1
-                _mat_A_alt[l, pg.line_start[l]] = 0
-            elseif pg.lines_at_bus[pg.line_end[l]] == 1 && pg.lines_at_bus[pg.line_start[l]] > 1
-                _mat_A_alt[l, pg.line_end[l]] = 0
+            if pg.lines_at_bus[pg.bus_id[pg.line_start[l]]] == 1 && pg.lines_at_bus[pg.bus_id[pg.line_end[l]]] > 1
+                _mat_A_alt[l, pg.bus_id[pg.line_start[l]]] = 0
+            elseif pg.lines_at_bus[pg.bus_id[pg.line_end[l]]] == 1 && pg.lines_at_bus[pg.bus_id[pg.line_start[l]]] > 1
+                _mat_A_alt[l, pg.bus_id[pg.line_end[l]]] = 0
             else
                 println("Warning: Uncaught case in param_mat_A_alt.")
             end
@@ -194,10 +194,10 @@ function param_mat_B(pg::T where T <: PowerGrids.PowerGrid; _refbus = 1.0, line_
     for i in 1:size(pg.lines, 1)
         if line_statuses[i] == 1.0
             @assert pg.line_start[i] != pg.line_end[i]
-            _mat_B[pg.line_start[i], pg.line_end[i]] -= 1 / pg.line_x[i]
-            _mat_B[pg.line_end[i], pg.line_start[i]] -= 1 / pg.line_x[i]
-            _mat_B[pg.line_start[i], pg.line_start[i]] += 1 / pg.line_x[i]
-            _mat_B[pg.line_end[i], pg.line_end[i]] += 1 / pg.line_x[i]
+            _mat_B[pg.bus_id[pg.line_start[i]], pg.bus_id[pg.line_end[i]]] -= 1 / pg.line_x[i]
+            _mat_B[pg.bus_id[pg.line_end[i]], pg.bus_id[pg.line_start[i]]] -= 1 / pg.line_x[i]
+            _mat_B[pg.bus_id[pg.line_start[i]], pg.bus_id[pg.line_start[i]]] += 1 / pg.line_x[i]
+            _mat_B[pg.bus_id[pg.line_end[i]], pg.bus_id[pg.line_end[i]]] += 1 / pg.line_x[i]
         end
     end
     _mat_B[_refbus, :] = zeros(length(_mat_B[_refbus, :]))

@@ -144,6 +144,7 @@ function loadCase(; source = :csv)
     end
 
     dataset = PowerGrid(ds.baseMVA,
+                        ds.name,
                         buses,
                         root_buses,
                         bus_decomposed,
