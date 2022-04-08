@@ -60,7 +60,7 @@ end
 function get_sensitivities_lpsc(pg::PowerGrids.PowerGrid, model::Model; line_statuses = ones(length(pg.lines)))
     _lpsc = Array{Float64, 1}(undef, Base.size(pg.lines, 1))
     for i in 1:length(pg.lines)
-        if haskey(model[:f], pg.lines[i])
+        if pg.lines[i] in keys([model[:f]...])
             _lpsc[i] = value(model[:f][pg.lines[i]]) * ( dual(model[:nb][pg.bus_id[pg.line_end[pg.lines[i]]]]) - dual(model[:nb][pg.bus_id[pg.line_start[pg.lines[i]]]]) )
         else
             _lpsc[i] = 0.0
